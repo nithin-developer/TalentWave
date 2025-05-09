@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1080" height="1080" viewBox="0 0 1080 1080" xml:space="preserve">
+<desc>Created with Fabric.js 5.2.4</desc>
+<defs>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="transparent"></rect>
+<g transform="matrix(1 0 0 1 540 540)" id="903f1a09-c973-4df0-a234-72c88dd4b299"  >
+</g>
+<g transform="matrix(1 0 0 1 540 540)" id="f404dc24-7095-444c-be4c-162ce6d00d72"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; visibility: hidden;" vector-effect="non-scaling-stroke"  x="-540" y="-540" rx="0" ry="0" width="1080" height="1080" />
+</g>
+<g transform="matrix(0 0 0 0 0 0)"  >
+<g style=""   >
+</g>
+</g>
+<g transform="matrix(1 0 0 1.07 559.32 535.86)" style="" id="d1a5b293-a49c-4d04-abc6-dedc2853fbb9"  >
+		<text xml:space="preserve" font-family="Raleway" font-size="21" font-style="normal" font-weight="700" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1; white-space: pre;" ><tspan x="-53.28" y="6.6" >TalentWave</tspan></text>
+</g>
+<g transform="matrix(0.79 0 0 0.79 478.33 534.65)"  >
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(25,103,210); fill-rule: evenodd; opacity: 1;" vector-effect="non-scaling-stroke"  transform=" translate(-25, -25)" d="M 20 0.00000190735 C 8.95431 0.00000190735 0 8.95431 0 20 L 0 30 C 0 41.0457 8.9543 50 20 50 L 30 50 C 41.0457 50 50 41.0457 50 30 L 50 20 C 50 8.95431 41.0457 0.00000190735 30 0.00000190735 L 20 0.00000190735 Z M 33 12.4698 L 19.8375 25.2607 C 17.824 23.3025 17.824 20.1385 19.8375 18.1804 L 25.7195 12.4602 C 27.733 10.5117 30.9865 10.5117 33 12.4698 Z M 19.5102 38.881 L 29.0225 29.6304 C 31.0361 27.6722 31.0361 24.5083 29.0225 22.5501 L 19.5102 31.8008 C 17.4966 33.7589 17.4966 36.9229 19.5102 38.881 Z M 31.3336 26.0902 C 31.3336 25.8008 31.3039 25.5115 31.2642 25.2317 C 32.0676 27.0645 31.7006 29.2542 30.1731 30.7493 L 20.6608 40 C 20.4624 39.8071 20.2839 39.5949 20.1252 39.3826 L 29.5978 30.1706 C 30.7186 29.0805 31.3336 27.6336 31.3336 26.0902 Z M 28.1595 22.2993 L 23.944 26.4086 L 20.7104 25.5018 L 24.9755 21.3636 L 28.1595 22.2993 Z" stroke-linecap="round" />
+</g>
+</svg>
