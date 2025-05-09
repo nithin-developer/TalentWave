@@ -1,0 +1,32 @@
+<!-- User Sidebar -->
+<div class="user-sidebar">
+  <div class="sidebar-inner">
+    <ul class="navigation">
+      <li class="{% if request.path == '/candidate/dashboard' %}active{% endif %}">
+        <a href="/candidate/dashboard">
+          <i class="la la-home"></i> Dashboard</a
+        >
+      </li>
+      <li class="{% if request.path == '/candidate/profile' %}active{% endif %}">
+        <a href="/candidate/profile"
+          ><i class="la la-user-tie"></i>My Profile</a
+        >
+      </li>
+      <li class="{% if request.path == '/candidate/applied-jobs' %}active{% endif %}">
+        <a href="/candidate/applied-jobs"
+          ><i class="la la-edit"></i> Applied Jobs
+        </a>
+      </li>
+
+      <li class="{% if request.path == '/candidate/change-password' %}active{% endif %}">
+        <a href="/candidate/change-password"
+          ><i class="la la-lock"></i>Change Password</a
+        >
+      </li>
+      <li class="{% if request.path == '/auth/logout' %}active{% endif %}">
+        <a href="/auth/logout"><i class="la la-sign-out"></i>Logout</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- End User Sidebar -->

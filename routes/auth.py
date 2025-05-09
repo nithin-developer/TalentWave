@@ -5,9 +5,9 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if session['role'] == 'candidate':
+    if session and session.get('role') == 'candidate':
         return redirect(url_for('candidate.candidate_dashboard'))
-    if session['role'] == 'employer':
+    if session and session.get('role') == 'employer':
         return redirect(url_for('employer.employer_dashboard'))
     alerts = get_flashed_messages(with_categories=True)
     if len(alerts) > 0:

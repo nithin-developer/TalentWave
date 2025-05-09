@@ -7,63 +7,31 @@
       <div class="nav-outer">
         <div class="logo-box">
           <div class="logo">
-            <a href="index.html"
+            <a href="/"
               ><img src="../../../../../static/images/logo.svg" alt="" title=""
             /></a>
           </div>
         </div>
-
         <nav class="nav main-menu">
           <ul class="navigation" id="navbar">
-            <li class="dropdown">
-              <span>Home</span>
-              <div class="mega-menu">
-                <div class="mega-menu-bar row pt-0">
-                  <div class="column col-lg-3 col-md-3 col-sm-12">
-                    <ul>
-                      <li><a href="index.html">Home Page 01</a></li>
-                      <li><a href="index-2.html">Home Page 02</a></li>
-                      <li><a href="index-3.html">Home Page 03</a></li>
-                      <li><a href="index-4.html">Home Page 04</a></li>
-                      <li><a href="index-5.html">Home Page 05</a></li>
-                    </ul>
-                  </div>
-
-                  <div class="column col-lg-3 col-md-3 col-sm-12">
-                    <ul>
-                      <li><a href="index-6.html">Home Page 06</a></li>
-                      <li><a href="index-7.html">Home Page 07</a></li>
-                      <li><a href="index-8.html">Home Page 08</a></li>
-                      <li><a href="index-9.html">Home Page 09</a></li>
-                      <li><a href="index-10.html">Home Page 10</a></li>
-                    </ul>
-                  </div>
-
-                  <div class="column col-lg-3 col-md-3 col-sm-12">
-                    <ul>
-                      <li><a href="index-11.html">Home Page 11</a></li>
-                      <li><a href="index-12.html">Home Page 12</a></li>
-                      <li><a href="index-13.html">Home Page 13</a></li>
-                      <li><a href="index-14.html">Home Page 14</a></li>
-                      <li><a href="index-15.html">Home Page 15</a></li>
-                    </ul>
-                  </div>
-
-                  <div class="column col-lg-3 col-md-3 col-sm-12">
-                    <ul>
-                      <li><a href="index-16.html">Home Page 16</a></li>
-                      <li><a href="index-17.html">Home Page 17</a></li>
-                      <li><a href="index-18.html">Home Page 18</a></li>
-                      <li><a href="index-19.html">Home Page 19</a></li>
-                      <li><a href="index-20.html">Home Page 20</a></li>
-                      <li><a href="index-21.html">Home Page 21</a></li>
-                      <li><a href="index-22.html">Home Page 22</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+            <li class="{% if request.path == '/' %}current{% endif %}">
+              <a href="/"><span>Home</span></a>
             </li>
-
+            <li class="{% if request.path == '/candidate/available-jobs' %}current{% endif %}">
+              <a href="/candidate/available-jobs">Available Jobs</a>
+            </li>
+            <li class="{% if request.path == '/about-us' %}current{% endif %}">
+              <a href="/about-us">About Us</a>
+            </li>
+            <li class="{% if request.path == '/faqs' %}current{% endif %}">
+              <a href="/faqs">
+                <span>FAQ's</span></a>
+            </li>
+            <li class="{% if request.path == '/contact-us' %}current{% endif %}">
+              <a href="/contact-us">
+                <span>Contact Us</span></a>
+            </li>
+<!-- 
             <li class="dropdown has-mega-menu" id="has-mega-menu">
               <span>Find Jobs</span>
               <div class="mega-menu">
@@ -253,13 +221,10 @@
                 <li><a href="elements.html">Ui Elements</a></li>
                 <li><a href="contact.html">Contact</a></li>
               </ul>
-            </li>
+            </li> -->
 
             <!-- Only for Mobile View -->
-            <li class="mm-add-listing">
-              <a href="add-listing.html" class="theme-btn btn-style-one"
-                >Job Post</a
-              >
+            <!-- <li class="mm-add-listing">
               <span>
                 <span class="contact-info">
                   <span class="phone-num"
@@ -270,8 +235,8 @@
                     >329 Queensberry Street, North Melbourne VIC <br />3051,
                     Australia.</span
                   >
-                  <a href="mailto:support@superio.com" class="email"
-                    >support@superio.com</a
+                  <a href="mailto:support@TalentWave.com" class="email"
+                    >support@TalentWave.com</a
                   >
                 </span>
                 <span class="social-links">
@@ -281,21 +246,13 @@
                   <a href="#"><span class="fab fa-linkedin-in"></span></a>
                 </span>
               </span>
-            </li>
+            </li> -->
           </ul>
         </nav>
         <!-- Main Menu End-->
       </div>
 
       <div class="outer-box">
-        <button class="menu-btn">
-          <span class="count">1</span>
-          <span class="icon la la-heart-o"></span>
-        </button>
-
-        <button class="menu-btn">
-          <span class="icon la la-bell"></span>
-        </button>
 
         <!-- Dashboard Option -->
         <div class="dropdown dashboard-option">
@@ -306,75 +263,36 @@
             aria-expanded="false"
           >
             <img
-              src="../../../../../static/images/resource/company-6.png"
+              src="https://api.dicebear.com/9.x/initials/svg?seed={{ session.first_name }}&backgroundColor=d81b60&fontFamily=Brush%20Script%20MT"
               alt="avatar"
               class="thumb"
             />
-            <span class="name">My Account</span>
+            <span class="name">Hi, {{ session.first_name}}! </span>
           </a>
           <ul class="dropdown-menu">
-            <li class="active">
-              <a href="candidate-dashboard.html">
+            <li class="{% if request.path == '/candidate/dashboard' %}active{% endif %}">
+              <a href="/candidate/dashboard">
                 <i class="la la-home"></i> Dashboard</a
               >
             </li>
-            <li>
-              <a href="candidate-dashboard-profile.html"
+            <li class="{% if request.path == '/candidate/profile' %}active{% endif %}">
+              <a href="/candidate/profile"
                 ><i class="la la-user-tie"></i>My Profile</a
               >
             </li>
-            <li>
-              <a href="candidate-dashboard-resume.html"
-                ><i class="la la-file-invoice"></i>My Resume</a
-              >
-            </li>
-            <li>
-              <a href="candidate-dashboard-applied-job.html"
-                ><i class="la la-briefcase"></i> Applied Jobs
+            <li class="{% if request.path == '/candidate/applied-jobs' %}active{% endif %}">
+              <a href="/candidate/applied-jobs"
+                ><i class="la la-edit"></i> Applied Jobs
               </a>
             </li>
-            <li>
-              <a href="candidate-dashboard-job-alerts.html"
-                ><i class="la la-bell"></i>Job Alerts</a
-              >
-            </li>
-            <li>
-              <a href="candidate-dashboard-shortlisted-resume.html"
-                ><i class="la la-bookmark-o"></i>Shortlisted Jobs</a
-              >
-            </li>
-            <li>
-              <a href="candidate-dashboard-cv-manager.html"
-                ><i class="la la-file-invoice"></i> CV manager</a
-              >
-            </li>
-            <li>
-              <a href="dashboard-packages.html"
-                ><i class="la la-box"></i>Packages</a
-              >
-            </li>
-            <li>
-              <a href="dashboard-messages.html"
-                ><i class="la la-comment-o"></i>Messages</a
-              >
-            </li>
-            <li>
-              <a href="dashboard-change-password.html"
+      
+            <li class="{% if request.path == '/candidate/change-password' %}active{% endif %}">
+              <a href="/candidate/change-password"
                 ><i class="la la-lock"></i>Change Password</a
               >
             </li>
-            <li>
-              <a href="dashboard-profile.html"
-                ><i class="la la-user-alt"></i>View Profile</a
-              >
-            </li>
-            <li>
-              <a href="index.html"><i class="la la-sign-out"></i>Logout</a>
-            </li>
-            <li>
-              <a href="dashboard-delete.html"
-                ><i class="la la-trash"></i>Delete Profile</a
-              >
+            <li class="{% if request.path == '/auth/logout' %}active{% endif %}">
+              <a href="/auth/logout"><i class="la la-sign-out"></i>Logout</a>
             </li>
           </ul>
         </div>
@@ -385,21 +303,14 @@
   <!-- Mobile Header -->
   <div class="mobile-header">
     <div class="logo">
-      <a href="index.html"><img src="../../../../../static/images/logo.svg" alt="" title="" /></a>
+      <a href="/"><img src="../../../../../static/images/logo.svg" alt="" title="" /></a>
     </div>
 
     <!--Nav Box-->
     <div class="nav-outer clearfix">
       <div class="outer-box">
-        <!-- Login/Register -->
-        <div class="login-box">
-          <a href="login-popup.html" class="call-modal"
-            ><span class="icon-user"></span
-          ></a>
-        </div>
-
         <button id="toggle-user-sidebar">
-          <img src="../../../../../static/images/resource/company-6.png" alt="avatar" class="thumb" />
+          <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ session.first_name }}&backgroundColor=d81b60&fontFamily=Brush%20Script%20MT" alt="avatar" class="thumb" />
         </button>
         <a href="#nav-mobile" class="mobile-nav-toggler navbar-trigger"
           ><span class="flaticon-menu-1"></span

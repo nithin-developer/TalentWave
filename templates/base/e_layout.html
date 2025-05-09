@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Superio | {% block title %} {% endblock %}</title>
+  <title>TalentWave | {% block title %} {% endblock %}</title>
 
   <!-- Stylesheets -->
   <link href="../../../../../static/css/bootstrap.css" rel="stylesheet">
@@ -27,15 +27,15 @@
 
     <!-- Header Span -->
     <span class="header-span"></span>
-    {% include 'components/dashboard/header.html' %}
+    {% include 'components/employer/header.html' %}
 
     <!-- Sidebar Backdrop -->
     <div class="sidebar-backdrop"></div>
-    {% include 'components/dashboard/sidebar.html' %}
+    {% include 'components/employer/sidebar.html' %}
 
     {% block content %} {% endblock %}
 
-    {% include 'components/dashboard/footer.html' %}
+    {% include 'components/employer/footer.html' %}
 
   </div><!-- End Page Wrapper -->
 
