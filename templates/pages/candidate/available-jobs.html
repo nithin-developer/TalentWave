@@ -14,44 +14,49 @@ endblock %} {% block content %}
       </p>
     </div>
     <div class="job-search-form">
-      <form
-        method="post"
-        action="https://creativelayers.net/themes/superio/job-list-v10.html"
-      >
+      <form method="post" action="{{ url_for('candidate_jobs.available_jobs') }}">
         <div class="row">
           <!-- Form Group -->
           <div class="form-group col-lg-4 col-md-12 col-sm-12">
             <span class="icon flaticon-search-1"></span>
-            <input
-              type="text"
-              name="field_name"
-              placeholder="Job title, keywords, or company"
-            />
+            <input type="text" name="keywords" placeholder="Job title, keywords, or company"
+              value="{{ request.form.get('keywords', '') }}" />
           </div>
 
           <!-- Form Group -->
           <div class="form-group col-lg-3 col-md-12 col-sm-12 location">
             <span class="icon flaticon-map-locator"></span>
-            <input
-              type="text"
-              name="field_name"
-              placeholder="City or postcode"
-            />
+            <input type="text" name="location" placeholder="City or postcode"
+              value="{{ request.form.get('location', '') }}" />
           </div>
 
           <!-- Form Group -->
           <div class="form-group col-lg-3 col-md-12 col-sm-12 location">
             <span class="icon flaticon-briefcase"></span>
-            <select class="chosen-select">
+            <select class="chosen-select" name="industry">
               <option value="">All Categories</option>
-              <option value="44">Accounting / Finance</option>
-              <option value="106">Automotive Jobs</option>
-              <option value="46">Customer</option>
-              <option value="48">Design</option>
-              <option value="47">Development</option>
-              <option value="45">Health and Care</option>
-              <option value="105">Marketing</option>
-              <option value="107">Project Management</option>
+              {% for industry in [
+              "Software Development",
+              "Web Development",
+              "Full Stack Development",
+              "DevOps & Cloud",
+              "Data Science & Analytics",
+              "Product Design",
+              "Software Quality Assurance",
+              "Product Management",
+              "Mobile Development",
+              "IT Infrastructure",
+              "Artificial Intelligence & Machine Learning",
+              "Cybersecurity",
+              "Networking",
+              "Database Management",
+              "IT Support",
+              "Blockchain & Web3",
+              "Game Development"
+              ] %}
+              <option value="{{ industry }}" {% if request.form.get('industry')==industry %}selected{% endif %}>{{
+                industry }}</option>
+              {% endfor %}
             </select>
           </div>
 
@@ -78,193 +83,148 @@ endblock %} {% block content %}
       <!-- Filters Column -->
       <div class="filters-column hide-left">
         <div class="inner-column">
-          <div class="filters-outer">
-            <button type="button" class="theme-btn close-filters">X</button>
+          <form method="post" action="{{ url_for('candidate_jobs.available_jobs') }}">
+            <div class="filters-outer">
+              <button type="button" class="theme-btn close-filters">X</button>
 
-            <!-- Filter Block -->
-            <div class="filter-block">
-              <h4>Search by Keywords</h4>
-              <div class="form-group">
-                <input
-                  type="text"
-                  name="listing-search"
-                  placeholder="Job title, keywords, or company"
-                />
-                <span class="icon flaticon-search-3"></span>
-              </div>
-            </div>
-
-            <!-- Filter Block -->
-            <div class="filter-block">
-              <h4>Location</h4>
-              <div class="form-group">
-                <input
-                  type="text"
-                  name="listing-search"
-                  placeholder="City or postcode"
-                />
-                <span class="icon flaticon-map-locator"></span>
-              </div>
-              <p>Radius around selected destination</p>
-              <div class="range-slider-one">
-                <div class="area-range-slider"></div>
-                <div class="input-outer">
-                  <div class="amount-outer">
-                    <span class="area-amount"></span>km
-                  </div>
+              <!-- Filter Block -->
+              <div class="filter-block">
+                <h4>Search by Keywords</h4>
+                <div class="form-group">
+                  <input type="text" name="keywords" placeholder="Job title, keywords, or company"
+                    value="{{ request.form.get('keywords', '') }}" />
+                  <span class="icon flaticon-search-3"></span>
                 </div>
               </div>
-            </div>
 
-            <!-- Filter Block -->
-            <div class="filter-block">
-              <h4>Category</h4>
-              <div class="form-group">
-                <select class="chosen-select">
-                  <option>Choose a category</option>
-                  <option>Residential</option>
-                  <option>Commercial</option>
-                  <option>Industrial</option>
-                  <option>Apartments</option>
-                </select>
-                <span class="icon flaticon-briefcase"></span>
-              </div>
-            </div>
-
-            <!-- Switchbox Outer -->
-            <div class="switchbox-outer">
-              <h4>Job type</h4>
-              <ul class="switchbox">
-                <li>
-                  <label class="switch">
-                    <input type="checkbox" checked />
-                    <span class="slider round"></span>
-                    <span class="title">Freelance</span>
-                  </label>
-                </li>
-                <li>
-                  <label class="switch">
-                    <input type="checkbox" />
-                    <span class="slider round"></span>
-                    <span class="title">Full Time</span>
-                  </label>
-                </li>
-                <li>
-                  <label class="switch">
-                    <input type="checkbox" />
-                    <span class="slider round"></span>
-                    <span class="title">Internship</span>
-                  </label>
-                </li>
-                <li>
-                  <label class="switch">
-                    <input type="checkbox" />
-                    <span class="slider round"></span>
-                    <span class="title">Part Time</span>
-                  </label>
-                </li>
-                <li>
-                  <label class="switch">
-                    <input type="checkbox" />
-                    <span class="slider round"></span>
-                    <span class="title">Temporary</span>
-                  </label>
-                </li>
-              </ul>
-            </div>
-
-            <!-- Checkboxes Ouer -->
-            <div class="checkbox-outer">
-              <h4>Date Posted</h4>
-              <ul class="checkboxes">
-                <li>
-                  <input id="check-f" type="checkbox" name="check" />
-                  <label for="check-f">All</label>
-                </li>
-                <li>
-                  <input id="check-a" type="checkbox" name="check" />
-                  <label for="check-a">Last Hour</label>
-                </li>
-                <li>
-                  <input id="check-b" type="checkbox" name="check" />
-                  <label for="check-b">Last 24 Hours</label>
-                </li>
-                <li>
-                  <input id="check-c" type="checkbox" name="check" />
-                  <label for="check-c">Last 7 Days</label>
-                </li>
-                <li>
-                  <input id="check-d" type="checkbox" name="check" />
-                  <label for="check-d">Last 14 Days</label>
-                </li>
-                <li>
-                  <input id="check-e" type="checkbox" name="check" />
-                  <label for="check-e">Last 30 Days</label>
-                </li>
-              </ul>
-            </div>
-
-            <!-- Checkboxes Ouer -->
-            <div class="checkbox-outer">
-              <h4>Experience Level</h4>
-              <ul class="checkboxes square">
-                <li>
-                  <input id="check-ba" type="checkbox" name="check" />
-                  <label for="check-ba">All</label>
-                </li>
-                <li>
-                  <input id="check-bb" type="checkbox" name="check" />
-                  <label for="check-bb">Internship</label>
-                </li>
-                <li>
-                  <input id="check-bc" type="checkbox" name="check" />
-                  <label for="check-bc">Entry level</label>
-                </li>
-                <li>
-                  <input id="check-bd" type="checkbox" name="check" />
-                  <label for="check-bd">Associate</label>
-                </li>
-                <li>
-                  <input id="check-be" type="checkbox" name="check" />
-                  <label for="check-be">Mid-Senior level4</label>
-                </li>
-                <li>
-                  <button class="view-more">
-                    <span class="icon flaticon-plus"></span> View More
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <!-- Filter Block -->
-            <div class="filter-block">
-              <h4>Salary</h4>
-
-              <div class="range-slider-one salary-range">
-                <div class="salary-range-slider"></div>
-                <div class="input-outer">
-                  <div class="amount-outer">
-                    <span class="amount salary-amount">
-                      $<span class="min">0</span> $<span class="max">0</span>
-                    </span>
-                  </div>
+              <!-- Filter Block -->
+              <div class="filter-block">
+                <h4>Location</h4>
+                <div class="form-group">
+                  <input type="text" name="location" placeholder="City or postcode"
+                    value="{{ request.form.get('location', '') }}" />
+                  <span class="icon flaticon-map-locator"></span>
                 </div>
               </div>
-            </div>
 
-            <!-- Filter Block -->
-            <div class="filter-block">
-              <h4>Tags</h4>
-              <ul class="tags-style-one">
-                <li><a href="#">app</a></li>
-                <li><a href="#">administrative</a></li>
-                <li><a href="#">android</a></li>
-                <li><a href="#">wordpress</a></li>
-                <li><a href="#">design</a></li>
-                <li><a href="#">react</a></li>
-              </ul>
+              <!-- Filter Block -->
+              <div class="filter-block">
+                <h4>Category</h4>
+                <div class="form-group">
+                  <select class="chosen-select" name="industry">
+                    <option value="">Choose a category</option>
+                    {% for industry in
+                    [
+                    "Software Development",
+                    "Web Development",
+                    "Full Stack Development",
+                    "DevOps & Cloud",
+                    "Data Science & Analytics",
+                    "Product Design",
+                    "Software Quality Assurance",
+                    "Product Management",
+                    "Mobile Development",
+                    "IT Infrastructure",
+                    "Artificial Intelligence & Machine Learning",
+                    "Cybersecurity",
+                    "Networking",
+                    "Database Management",
+                    "IT Support",
+                    "Blockchain & Web3",
+                    "Game Development"
+                    ] %}
+                    <option value="{{ industry }}" {% if request.form.get('industry')==industry %}selected{% endif %}>{{
+                      industry }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="icon flaticon-briefcase"></span>
+                </div>
+              </div>
+
+              <!-- Switchbox Outer -->
+              <div class="switchbox-outer">
+                <h4>Job type</h4>
+                <ul class="switchbox">
+                  {% for job_type in ["Freelance", "Full Time", "Internship", "Part Time", "Temporary"] %}
+                  <li>
+                    <label class="switch">
+                      <input type="checkbox" name="job_type" value="{{ job_type }}" {% if job_type in
+                        request.form.getlist('job_type') %}checked{% endif %} />
+                      <span class="slider round"></span>
+                      <span class="title">{{ job_type }}</span>
+                    </label>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <!-- Checkboxes Ouer -->
+              <div class="checkbox-outer">
+                <h4>Date Posted</h4>
+                <ul class="checkboxes">
+                  {% set date_options = [
+                  ('all', 'All'),
+                  ('last_hour', 'Last Hour'),
+                  ('last_24_hours', 'Last 24 Hours'),
+                  ('last_7_days', 'Last 7 Days'),
+                  ('last_14_days', 'Last 14 Days'),
+                  ('last_30_days', 'Last 30 Days')
+                  ] %}
+                  {% for value, label in date_options %}
+                  <li>
+                    <input id="date-{{ value }}" type="checkbox" name="date_posted" value="{{ value }}" {% if
+                      request.form.get('date_posted', 'all' )==value %}checked{% endif %} />
+                    <label for="date-{{ value }}">{{ label }}</label>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <script>
+                // Ensure only one date filter can be selected
+                document.querySelectorAll('input[name="date_posted"]').forEach(radio => {
+                  radio.addEventListener('change', (e) => {
+                    // Uncheck all other radio buttons
+                    document.querySelectorAll('input[name="date_posted"]').forEach(otherRadio => {
+                      if (otherRadio !== e.target) {
+                        otherRadio.checked = false;
+                      }
+                    });
+                  });
+                });
+              </script>
+
+              <!-- Checkboxes Ouer -->
+              <div class="checkbox-outer">
+                <h4>Experience Level</h4>
+                <ul class="checkboxes square">
+                  {% set exp_options = [
+                  ('all', 'All'),
+                  ('Junior', 'Junior level'),
+                  ('Entry', 'Entry level'),
+                  ('Mid', 'Mid-Senior level'),
+                  ('Senior', 'Senior level'),
+                  ('Lead', 'Lead level'),
+                  ('Manager', 'Manager level'),
+                  ('Executive', 'Executive level')
+                  ] %}
+                  {% for value, label in exp_options %}
+                  <li>
+                    <input id="exp-{{ value|replace(' ', '_') }}" type="checkbox" name="experience_level"
+                      value="{{ value }}" {% if request.form.get('experience_level', 'all' )==value %}checked{% endif
+                      %} />
+                    <label for="exp-{{ value|replace(' ', '_') }}">{{ label }}</label>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <!-- Submit Button -->
+              <div class="form-group text-center mb-4">
+                <button type="submit" class="theme-btn btn-style-one">
+                  Apply Filters <i class="fa fa-arrow-right ms-2"></i>
+                </button>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 
@@ -278,7 +238,11 @@ endblock %} {% block content %}
                 <span class="icon icon-filter"></span> Filter
               </button>
               <div class="text">
-                Showing <strong>41-60</strong> of <strong>944</strong> jobs
+                Showing <strong>{{ available_jobs|length }}</strong> jobs
+                {% if filters_applied %}
+                <a href="{{ url_for('candidate_jobs.available_jobs') }}" class="btn-style-two ms-3 py-1 px-3">Clear
+                  Filters</a>
+                {% endif %}
               </div>
             </div>
             <div class="sort-by">
@@ -290,302 +254,61 @@ endblock %} {% block content %}
                 <option>Part Time</option>
                 <option>Temporary</option>
               </select>
-
-              <select class="chosen-select">
-                <option>Show 10</option>
-                <option>Show 20</option>
-                <option>Show 30</option>
-                <option>Show 40</option>
-                <option>Show 50</option>
-                <option>Show 60</option>
-              </select>
             </div>
           </div>
 
+          {% if available_jobs|length == 0 %}
           <div class="row">
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 active col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-2.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-1.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-3.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-2.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-1.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-3.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-2.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-1.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
-              </div>
-            </div>
-            <!-- Job Block -->
-            <div class="job-block at-jlv17 col-lg-4 col-sm-6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <span class="company-logo position-relative"
-                    ><img
-                      class="w60 mb-3"
-                      src="../../../../../static/../../../../../static/images/resource/company-logo/3-3.png"
-                      alt=""
-                  /></span>
-                  <h4 class="fz22 mb-2">
-                    <a href="#">Software Engineer (Android) Libraries</a>
-                  </h4>
-                  <p class="mb-2">
-                    by <span class="fw500 text">CreativeLayers</span> in Design
-                    & Creative
-                  </p>
-                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                  <p class="text">220 days left to apply</p>
-                </div>
+            <div class="col-12 text-center py-5">
+              <div class="">
+                <img width="250px" height="250px" src="../../../../../static/images/not-found.jpg" alt="" srcset="">
+                <h4>No jobs found</h4>
+                <p>No jobs match your filter criteria. Try adjusting your filters or <a
+                    href="{{ url_for('candidate_jobs.available_jobs') }}">view all jobs</a>.</p>
               </div>
             </div>
           </div>
+          {% else %}
+          <div class="row">
+            {% for job in available_jobs %}
+            <!-- Job Block -->
+            <div class="job-block at-jlv17 col-lg-4 col-sm-6" onmouseover="this.classList.add('active')"
+              onmouseout="this.classList.remove('active')">
+              <div class="inner-box">
+                <div class="tags job-other-info d-flex align-items-center">
+                  <li class="alert alert-{{ get_level_color(job.career_level) }}">
+                    <i class="fa fa-briefcase"></i> {{ job.career_level }} Level
+                  </li>
+                </div>
+                <div class="content ps-0">
+                  <span class="company-logo position-relative"><img class="w60 mb-3 rounded-circle"
+                      src="../../../../../{{ job.company_logo }}" alt="" /></span>
+                  <h4 class="fz22 mb-2">
+                    <a href="#">{{ job.title }}</a>
+                  </h4>
+                  <p class="mb-2">
+                    by <span class="fw500 text">{{ job.company_name }}</span> in
+                    {{ job.industry }}
+                  </p>
+                  <ul class="job-other-info at-jsv6 at-jsv17 mt20 ms-0">
+                    <li class="time">{{ job.job_type }}</li>
+                    <li class="time2">
+                      {{ job.city|title }}, {{ job.country|title }}
+                    </li>
+                    <li class="time2">{{ job.salary }}/year</li>
+                  </ul>
+                  <p class="text">
+                    {{ days_remaining(job.deadline) }} days left to apply
+                  </p>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
 
           <!-- Pagination -->
-          <nav class="ls-pagination">
+          <!-- <nav class="ls-pagination">
             <ul>
               <li class="prev">
                 <a href="#"><i class="fa fa-arrow-left"></i></a>
@@ -597,7 +320,7 @@ endblock %} {% block content %}
                 <a href="#"><i class="fa fa-arrow-right"></i></a>
               </li>
             </ul>
-          </nav>
+          </nav> -->
         </div>
       </div>
     </div>

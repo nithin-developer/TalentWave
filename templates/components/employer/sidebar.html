@@ -1,0 +1,39 @@
+<!-- User Sidebar -->
+<div class="user-sidebar">
+  <div class="sidebar-inner">
+    <ul class="navigation">
+      <li class="{% if request.path == '/employer/dashboard' %}active{% endif %}">
+        <a href="/employer/dashboard"> <i class="la la-home"></i> Dashboard</a>
+      </li>
+      <li class="{% if request.path == '/employer/company-profile' %}active{% endif %}">
+        <a href="/employer/company-profile"
+          ><i class="la la-building"></i>Company Profile</a
+        >
+      </li>
+      <li class="{% if request.path == '/employer/post-new-job' %}active{% endif %}">
+        <a href="/employer/post-new-job"
+          ><i class="la la-paper-plane"></i>Post a New Job</a
+        >
+      </li>
+      <li class="{% if request.path == '/employer/manage-jobs' %}active{% endif %}">
+        <a href="/employer/manage-jobs"
+          ><i class="la la-briefcase"></i> Manage Jobs
+        </a>
+      </li>
+      <li class="{% if request.path == '/employer/manage-applicants' %}active{% endif %}">
+        <a href="/employer/manage-applicants"
+          ><i class="la la-file-invoice"></i> All Applicants</a
+        >
+      </li>
+      <li class="{% if request.path == '/employer/profile' %}active{% endif %}">
+        <a href="/employer/profile"
+          ><i class="la la-user-alt"></i>View Profile</a
+        >
+      </li>
+      <li class="{% if request.path == '/auth/logout' %}active{% endif %}">
+        <a href="/auth/logout"><i class="la la-sign-out"></i>Logout</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- End User Sidebar -->

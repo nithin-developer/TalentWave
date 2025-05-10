@@ -2,6 +2,8 @@ from mysql.connector import MySQLConnection, Error
 import bcrypt
 import uuid
 from config import Config
+import datetime
+
 
 class Database:
     @staticmethod
@@ -18,7 +20,7 @@ class Database:
         except Error as e:
             print(f"Error connecting to MySQL database: {e}")
             return None
-    
+
     @staticmethod
     def close_connection(connection, cursor=None):
         """Close database connection and cursor."""
@@ -37,12 +39,12 @@ class Database:
     def hash_password(password):
         """Hash a password for storing."""
         return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    
+
     @staticmethod
     def check_password(hashed_password, user_password):
         """Check if the provided password matches the stored hash."""
         return bcrypt.checkpw(user_password.encode('utf-8'), hashed_password.encode('utf-8'))
-    
+
     @staticmethod
     def authenticate_user(email, password, role):
         """Authenticate a user by email and password."""
@@ -52,14 +54,14 @@ class Database:
             connection = Database.get_connection()
             if not connection:
                 return None
-            
+
             cursor = connection.cursor(dictionary=True)
-            
+
             # Get user by email
             query = "SELECT * FROM users WHERE email = %s AND role = %s"
             cursor.execute(query, (email, role))
             user = cursor.fetchone()
-            
+
             # Check if user exists and password matches
             if user and Database.check_password(user['password_hash'], password):
                 return user
@@ -69,7 +71,7 @@ class Database:
             return None
         finally:
             Database.close_connection(connection, cursor)
-    
+
     # User management functions
     @staticmethod
     def create_user(first_name, last_name, email, password, role):
@@ -80,32 +82,33 @@ class Database:
             connection = Database.get_connection()
             if not connection:
                 return False
-            
+
             cursor = connection.cursor()
-            
+
             # Check if user with this email already exists
             query = "SELECT user_id FROM users WHERE email = %s"
             cursor.execute(query, (email,))
             if cursor.fetchone():
                 return False
-            
+
             # Generate a UUID for the user
             user_id = Database.generate_uuid()
-            
+
             # Insert new user with UUID
             query = """
                 INSERT INTO users (user_id, email, password_hash, first_name, last_name, role)
                 VALUES (%s, %s, %s, %s, %s, %s)
             """
             hashed_password = Database.hash_password(password)
-            cursor.execute(query, (user_id, email, hashed_password, first_name, last_name, role))
-            
+            cursor.execute(
+                query, (user_id, email, hashed_password, first_name, last_name, role))
+
             # If user is a candidate, create a candidate profile
             if role == 'candidate':
                 profile_id = Database.generate_uuid()
                 query = "INSERT INTO candidate_profiles (profile_id, user_id) VALUES (%s, %s)"
                 cursor.execute(query, (profile_id, user_id))
-            
+
             connection.commit()
             return True
         except Error as e:
@@ -115,7 +118,7 @@ class Database:
             return False
         finally:
             Database.close_connection(connection, cursor)
-    
+
     @staticmethod
     def get_user_by_id(user_id):
         """Get user details by UUID."""
@@ -125,9 +128,9 @@ class Database:
             connection = Database.get_connection()
             if not connection:
                 return None
-            
+
             cursor = connection.cursor(dictionary=True)
-            
+
             query = "SELECT user_id, email, first_name, last_name, role, created_at FROM users WHERE user_id = %s"
             cursor.execute(query, (user_id,))
             return cursor.fetchone()
@@ -136,7 +139,7 @@ class Database:
             return None
         finally:
             Database.close_connection(connection, cursor)
-    
+
     @staticmethod
     def get_user_by_email(email):
         """Get user details by email."""
@@ -146,9 +149,9 @@ class Database:
             connection = Database.get_connection()
             if not connection:
                 return None
-            
+
             cursor = connection.cursor(dictionary=True)
-            
+
             query = "SELECT user_id, email, first_name, last_name, role, created_at FROM users WHERE email = %s"
             cursor.execute(query, (email,))
             return cursor.fetchone()
@@ -157,291 +160,364 @@ class Database:
             return None
         finally:
             Database.close_connection(connection, cursor)
-    
+
     # Employer functions
     @staticmethod
-    def create_job(title, company, location, job_type, description, requirements, salary_range, posted_by):
-        """Create a new job listing with UUID."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            # Generate UUID for the job
-            job_id = Database.generate_uuid()
-            
-            query = """
-                INSERT INTO jobs (job_id, title, company, location, job_type, description, requirements, salary_range, posted_by)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(query, (job_id, title, company, location, job_type, description, requirements, salary_range, posted_by))
-            
-            connection.commit()
-            return True, job_id
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error creating job: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    # Candidate functions
-    @staticmethod
-    def get_candidate_profile_id(user_id):
-        """Get candidate profile ID from user ID."""
+    def get_company_profile_by_employer_id(employer_id):
+        """Get company profile by employer ID."""
         connection = None
         cursor = None
         try:
             connection = Database.get_connection()
             if not connection:
                 return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = "SELECT * FROM companies WHERE employer_id = %s"
+            cursor.execute(query, (employer_id,))
             
+            # Explicitly fetch the result before closing the cursor
+            result = cursor.fetchone()
+            
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+                
+            return result
+        except Error as e:
+            print(f"Error getting company profile: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def insert_company_profile(company_id, employer_id, company_name, company_email, company_phone, path,
+                               company_website, est_since, team_size, about_company,
+                               company_address, embed_code, country, city):
+        """Insert company profile."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            query = """INSERT INTO companies (
+                id, employer_id, company_name, company_email, company_phone, company_logo,
+                company_website, est_since, team_size, about_company,
+                company_address, embed_code, country, city
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s, %s
+            )"""
+            values = (
+                company_id, employer_id, company_name, company_email, company_phone, path,
+                company_website, est_since, team_size, about_company,
+                company_address, embed_code, country, city
+            )
+
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error inserting company profile: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def update_company_profile(company_id, company_name, company_email, company_phone, path,
+                               company_website, est_since, team_size, about_company,
+                               company_address, embed_code, country, city):
+        """Update company profile."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+            cursor = connection.cursor()
+
+            query = """UPDATE companies SET
+                company_name = %s, company_email = %s, company_phone = %s, company_logo = %s,
+                company_website = %s, est_since = %s,
+                team_size = %s, about_company = %s, company_address = %s,
+                embed_code = %s, country = %s, city = %s
+                WHERE id = %s"""
+            values = (
+                company_name, company_email, company_phone, path,
+                company_website, est_since, team_size, about_company,
+                company_address, embed_code, country, city, company_id
+
+            )
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error updating company profile: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    # Job Management Functions
+    @staticmethod
+    def post_new_job(job_id, company_id, employer_id, title, description, specialisms, job_type, 
+                     salary, career_level, experience, gender, industry, qualification, deadline):
+        """Create a new job posting in the database."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            query = """INSERT INTO jobs (
+                id, company_id, employer_id, title, description, specialisms, job_type, 
+                salary, career_level, experience, gender, industry, qualification, 
+                deadline, created_at, status
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 'active'
+            )"""
+            
+            values = (
+                job_id, company_id, employer_id, title, description, specialisms, job_type,
+                salary, career_level, experience, gender, industry, qualification, deadline
+            )
+
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error posting new job: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+            
+    @staticmethod
+    def get_company_id_by_employer_id(employer_id):
+        """Get company ID for an employer."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = "SELECT id FROM companies WHERE employer_id = %s"
+            cursor.execute(query, (employer_id,))
+            
+            # Explicitly fetch the result before closing the cursor
+            result = cursor.fetchone()
+            
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+                
+            return result['id'] if result else None
+        except Error as e:
+            print(f"Error getting company ID: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+            
+    @staticmethod
+    def get_employer_jobs(employer_id):
+        """Get all jobs posted by an employer."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT j.*, c.* 
+                FROM jobs j
+                JOIN companies c ON j.company_id = c.id
+                WHERE j.employer_id = %s
+                ORDER BY j.created_at DESC
+            """
+            cursor.execute(query, (employer_id,))
+            
+            # Explicitly fetch the result before closing the cursor
+            result = cursor.fetchall()
+            
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+                
+            return result
+        except Error as e:
+            print(f"Error getting employer jobs: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def delete_job(job_id, employer_id):
+        """Delete a job by ID."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            query = "DELETE FROM jobs WHERE id = %s AND employer_id = %s"
+            cursor.execute(query, (job_id, employer_id))
+            connection.commit()
+            return cursor.rowcount > 0
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error deleting job: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_available_jobs():
+        """Get all available jobs."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT j.*, c.*
+                FROM jobs j
+                JOIN companies c ON j.company_id = c.id 
+                WHERE j.status = 'active'
+                ORDER BY j.created_at DESC
+            """
+            cursor.execute(query)
+
+            # Explicitly fetch the result before closing the cursor
+            result = cursor.fetchall()
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+
+            return result
+        except Error as e:
+            print(f"Error getting available jobs: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_filtered_jobs(filters):
+        """Get jobs with specified filters.
+        
+        Args:
+            filters (dict): A dictionary containing filter parameters
+                - keywords: Search term for job title, description or company name
+                - location: City or country
+                - industry: Industry/category of job
+                - job_type: List of job types (Full Time, Part Time, etc.)
+                - date_posted: Time period for filtering by creation date
+                - experience_level: Experience level required
+        """
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
             cursor = connection.cursor(dictionary=True)
             
-            query = "SELECT profile_id FROM candidate_profiles WHERE user_id = %s"
-            cursor.execute(query, (user_id,))
-            result = cursor.fetchone()
+            # Start with base query
+            query = """
+                SELECT j.*, c.*
+                FROM jobs j
+                JOIN companies c ON j.company_id = c.id 
+                WHERE j.status = 'active'
+            """
+            parameters = []
             
-            if result:
-                return result['profile_id']
+            # Add filters
+            if filters.get('keywords'):
+                query += """ AND (j.title LIKE %s OR j.description LIKE %s OR c.company_name LIKE %s)"""
+                keyword_param = f"%{filters['keywords']}%"
+                parameters.extend([keyword_param, keyword_param, keyword_param])
+                
+            if filters.get('location'):
+                query += """ AND (c.city LIKE %s OR c.country LIKE %s)"""
+                location_param = f"%{filters['location']}%"
+                parameters.extend([location_param, location_param])
+                
+            if filters.get('industry') and filters['industry'] != "":
+                query += """ AND j.industry = %s"""
+                parameters.append(filters['industry'])
+                
+            if filters.get('job_type') and len(filters['job_type']) > 0:
+                placeholders = ', '.join(['%s'] * len(filters['job_type']))
+                query += f""" AND j.job_type IN ({placeholders})"""
+                parameters.extend(filters['job_type'])
+                
+            if filters.get('experience_level') and filters['experience_level'] != 'all':
+                query += """ AND j.career_level = %s"""
+                parameters.append(filters['experience_level'])
+                
+            if filters.get('date_posted') and filters['date_posted'] != 'all':
+                now = datetime.datetime.now()
+                
+                if filters['date_posted'] == 'last_hour':
+                    time_ago = now - datetime.timedelta(hours=1)
+                elif filters['date_posted'] == 'last_24_hours':
+                    time_ago = now - datetime.timedelta(days=1)
+                elif filters['date_posted'] == 'last_7_days':
+                    time_ago = now - datetime.timedelta(days=7)
+                elif filters['date_posted'] == 'last_14_days':
+                    time_ago = now - datetime.timedelta(days=14)
+                elif filters['date_posted'] == 'last_30_days':
+                    time_ago = now - datetime.timedelta(days=30)
+                else:
+                    time_ago = None
+                    
+                if time_ago:
+                    query += """ AND j.created_at >= %s"""
+                    parameters.append(time_ago)
+            
+            # Add order by
+            query += " ORDER BY j.created_at DESC"
+            
+            # Execute query
+            cursor.execute(query, parameters)
+            
+            # Fetch results
+            result = cursor.fetchall()
+            
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+                
+            return result
+        except Error as e:
+            print(f"Error filtering jobs: {e}")
             return None
-        except Error as e:
-            print(f"Error getting candidate profile ID: {e}")
-            return None
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def update_candidate_profile(user_id, phone=None, address=None, resume_path=None, headline=None, summary=None):
-        """Update a candidate's profile."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            # Get candidate profile ID
-            query = "SELECT profile_id FROM candidate_profiles WHERE user_id = %s"
-            cursor.execute(query, (user_id,))
-            result = cursor.fetchone()
-            
-            if not result:
-                return False, "Candidate profile not found"
-            
-            # Update profile
-            query = """
-                UPDATE candidate_profiles 
-                SET phone = COALESCE(%s, phone),
-                    address = COALESCE(%s, address),
-                    resume_path = COALESCE(%s, resume_path),
-                    headline = COALESCE(%s, headline),
-                    summary = COALESCE(%s, summary)
-                WHERE user_id = %s
-            """
-            cursor.execute(query, (phone, address, resume_path, headline, summary, user_id))
-            
-            connection.commit()
-            return True, "Profile updated successfully"
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error updating profile: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def add_education(candidate_id, institution, degree, field_of_study, start_date, end_date=None, is_current=False, description=None):
-        """Add education entry to candidate profile."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            # Generate UUID for education entry
-            education_id = Database.generate_uuid()
-            
-            query = """
-                INSERT INTO education (education_id, candidate_id, institution, degree, field_of_study, start_date, end_date, is_current, description)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(query, (education_id, candidate_id, institution, degree, field_of_study, start_date, end_date, is_current, description))
-            
-            connection.commit()
-            return True, education_id
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error adding education: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def add_experience(candidate_id, company, title, location, start_date, end_date=None, is_current=False, description=None):
-        """Add work experience entry to candidate profile."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            # Generate UUID for experience entry
-            experience_id = Database.generate_uuid()
-            
-            query = """
-                INSERT INTO experience (experience_id, candidate_id, company, title, location, start_date, end_date, is_current, description)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(query, (experience_id, candidate_id, company, title, location, start_date, end_date, is_current, description))
-            
-            connection.commit()
-            return True, experience_id
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error adding experience: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def add_skill(name):
-        """Add a skill to the database if it doesn't exist, or get existing skill ID."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor(dictionary=True)
-            
-            # Check if skill already exists
-            query = "SELECT skill_id FROM skills WHERE name = %s"
-            cursor.execute(query, (name,))
-            result = cursor.fetchone()
-            
-            if result:
-                return True, result['skill_id']
-            
-            # Add new skill with UUID
-            skill_id = Database.generate_uuid()
-            query = "INSERT INTO skills (skill_id, name) VALUES (%s, %s)"
-            cursor.execute(query, (skill_id, name))
-            
-            connection.commit()
-            return True, skill_id
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error adding skill: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def add_candidate_skill(candidate_id, skill_id, proficiency):
-        """Add a skill to a candidate's profile."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            query = """
-                INSERT INTO candidate_skills (candidate_id, skill_id, proficiency)
-                VALUES (%s, %s, %s)
-            """
-            cursor.execute(query, (candidate_id, skill_id, proficiency))
-            
-            connection.commit()
-            return True, "Skill added successfully"
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error adding candidate skill: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def apply_for_job(job_id, candidate_id, cover_letter=None):
-        """Submit a job application with UUID."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            # Generate UUID for application
-            application_id = Database.generate_uuid()
-            
-            query = """
-                INSERT INTO applications (application_id, job_id, candidate_id, cover_letter)
-                VALUES (%s, %s, %s, %s)
-            """
-            cursor.execute(query, (application_id, job_id, candidate_id, cover_letter))
-            
-            connection.commit()
-            return True, application_id
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error applying for job: {e}")
-            return False, str(e)
-        finally:
-            Database.close_connection(connection, cursor)
-    
-    @staticmethod
-    def add_notification(user_id, content):
-        """Create a notification for a user."""
-        connection = None
-        cursor = None
-        try:
-            connection = Database.get_connection()
-            if not connection:
-                return False, "Database connection failed"
-            
-            cursor = connection.cursor()
-            
-            # Generate UUID for notification
-            notification_id = Database.generate_uuid()
-            
-            query = """
-                INSERT INTO notifications (notification_id, user_id, content)
-                VALUES (%s, %s, %s)
-            """
-            cursor.execute(query, (notification_id, user_id, content))
-            
-            connection.commit()
-            return True, notification_id
-        except Error as e:
-            if connection:
-                connection.rollback()
-            print(f"Error creating notification: {e}")
-            return False, str(e)
         finally:
             Database.close_connection(connection, cursor)
 

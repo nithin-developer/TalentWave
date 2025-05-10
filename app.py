@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request
 from dotenv import load_dotenv
 from routes import auth, candidate, employer
-from routes.candidates import jobs
+from routes.candidates import jobs as candidate_jobs
+from routes.employers import jobs as employer_jobs, company
 
 load_dotenv()
 
@@ -16,7 +17,9 @@ def index():
 app.register_blueprint(auth.auth_bp, url_prefix='/auth')
 app.register_blueprint(candidate.candidate_bp)
 app.register_blueprint(employer.employer_bp)
-app.register_blueprint(jobs.jobs_bp)
+app.register_blueprint(candidate_jobs.jobs_bp)
+app.register_blueprint(employer_jobs.jobs_bp)
+app.register_blueprint(company.company_bp)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

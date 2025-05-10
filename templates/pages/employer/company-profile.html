@@ -1,0 +1,363 @@
+{% extends 'base/e_layout.html' %} {% block title %}{% if is_edit_mode %}Update{% else %}Company{% endif %} Profile{% endblock
+%} {% block content %}
+
+<!-- Dashboard -->
+<section class="user-dashboard">
+  <div class="dashboard-outer">
+    <div class="upper-title-box">
+      <h3>{% if is_edit_mode %}Update{% else %}Company{% endif %} Profile!</h3>
+      <div class="text">Ready to jump back in?</div>
+    </div>
+
+    {% if alerts %}
+    <div class="message-box {{ alerts[0] }}">
+      <p>{{ alerts[1] }}</p>
+      <button class="close-btn"><span class="close_icon"></span></button>
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-lg-12">
+        <!-- Ls widget -->
+        <div class="ls-widget">
+          <div class="tabs-box">
+            <div class="widget-title">
+              <h4>{% if is_edit_mode %}Update{% else %}My{% endif %} Profile</h4>
+            </div>
+
+            <div class="widget-content">
+              <form
+                class="default-form"
+                method="post"
+                action="{% if is_edit_mode %}{{ url_for('company.submit_profile') }}{% else %}{{ url_for('company.update_profile') }}{% endif %}"
+                enctype="multipart/form-data"
+              >
+              <!-- Upload Logo -->
+              <div class="form-group">
+               <label for="upload" > Upload Company Logo</label>
+                <div class="uploading-outer mt-2">
+                  <div class="uploadButton position-relative">
+                    <input
+                      class="uploadButton-input"
+                      type="file"
+                      name="company_logo"
+                      accept="image/*"
+                      id="upload"
+                      style="display: none;"
+                      onchange="previewImage(this);"
+                    />
+                                        <div id="imagePreviewContainer" class="image-preview cursor-pointer" onclick="document.getElementById('upload').click()">
+                      {% if company_profile and company_profile.company_logo %}
+                      <img src="../../../../../{{company_profile.company_logo}}"
+                           id="imagePreview"
+                           alt="Company Logo"   
+                           class="img-fluid rounded"
+                           style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                      {% else %}
+                      <div class="upload-placeholder">
+                        <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                        <p>Upload Logo</p>
+                      </div>
+                      {% endif %}
+                      <div class="hover-overlay">
+                        <span class="change-image-text">
+                          <i class="fas fa-camera me-2"></i>Change Logo
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                <div class="row">
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>Company name</label>
+                    <input
+                      type="text"
+                      name="company_name"
+                      placeholder="Invisionn"
+                      value="{{ company_profile.company_name if company_profile else '' }}"
+                    />
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>Email address</label>
+                    <input
+                      type="email"
+                      name="company_email"
+                      placeholder="creativelayers@talentwave.in"
+                      value="{{ company_profile.company_email if company_profile else '' }}"
+                    />
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>Phone</label>
+                    <input
+                      type="text"
+                      name="company_phone"
+                      placeholder="0 123 456 7890"
+                      value="{{ company_profile.company_phone if company_profile else '' }}"
+                    />
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>Website</label>
+                    <input
+                      type="text"
+                      name="company_website"
+                      placeholder="www.invision.com"
+                      value="{{ company_profile.company_website if company_profile else '' }}"
+                    />
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label class="mb-2 block text-sm font-medium"
+                      >Est. Since</label
+                    >
+                    <input
+                      type="text"
+                      id="est-since-picker"
+                      placeholder="Select Date"
+                      readonly
+                      name="est_since"
+                      value="{{ company_profile.est_since if company_profile else '' }}"
+                    />
+                  </div>
+                  <link
+                    rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+                  />
+                  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                  <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                      flatpickr("#est-since-picker", {
+                        dateFormat: "d.m.Y",
+                        maxDate: "today",
+                        disableMobile: "true",
+                        allowInput: true,
+                        animate: true,
+                        theme: "light",
+                      });
+                    });
+                  </script>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>Team Size</label>
+                    <select class="chosen-select" name="team_size">
+                      <option value="50-100" {% if company_profile and company_profile.team_size == '50-100' %}selected{% endif %}>50 - 100</option>
+                      <option value="100-150" {% if company_profile and company_profile.team_size == '100-150' %}selected{% endif %}>100 - 150</option>
+                      <option value="200-250" {% if company_profile and company_profile.team_size == '200-250' %}selected{% endif %}>200 - 250</option>
+                      <option value="300-350" {% if company_profile and company_profile.team_size == '300-350' %}selected{% endif %}>300 - 350</option>
+                      <option value="500-1000" {% if company_profile and company_profile.team_size == '500-1000' %}selected{% endif %}>500 - 1000</option>
+                    </select>
+                  </div>
+
+                  <!-- About Company -->
+                  <div class="form-group col-lg-12 col-md-12">
+                    <label>About Company</label>
+                    <textarea
+                      name="about_company"
+                      placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"
+                    >{{ company_profile.about_company if company_profile else '' }}</textarea>
+                  </div>
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>Country</label>
+                    <select class="chosen-select" name="country">
+                      <option value="australia" {% if company_profile and company_profile.country == 'australia' %}selected{% endif %}>Australia</option>
+                      <option value="america" {% if company_profile and company_profile.country == 'america' %}selected{% endif %}>America</option>
+                      <option value="chaina" {% if company_profile and company_profile.country == 'chaina' %}selected{% endif %}>Chaina</option>
+                      <option value="japan" {% if company_profile and company_profile.country == 'japan' %}selected{% endif %}>Japan</option>
+                      <option value="india" {% if company_profile and company_profile.country == 'india' %}selected{% endif %}>India</option>
+                    </select>
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-6 col-md-12">
+                    <label>City</label>
+                    <select class="chosen-select" name="city">
+                      <option value="mumbai" {% if company_profile and company_profile.city == 'mumbai' %}selected{% endif %}>Mumbai</option>
+                      <option value="delhi" {% if company_profile and company_profile.city == 'delhi' %}selected{% endif %}>Delhi</option>
+                      <option value="bangalore" {% if company_profile and company_profile.city == 'bangalore' %}selected{% endif %}>Bangalore</option>
+                      <option value="hyderabad" {% if company_profile and company_profile.city == 'hyderabad' %}selected{% endif %}>Hyderabad</option>
+                      <option value="chennai" {% if company_profile and company_profile.city == 'chennai' %}selected{% endif %}>Chennai</option>
+                      <option value="kolkata" {% if company_profile and company_profile.city == 'kolkata' %}selected{% endif %}>Kolkata</option>
+                      <option value="pune" {% if company_profile and company_profile.city == 'pune' %}selected{% endif %}>Pune</option>
+                      <option value="ahmedabad" {% if company_profile and company_profile.city == 'ahmedabad' %}selected{% endif %}>Ahmedabad</option>
+                      <option value="jaipur" {% if company_profile and company_profile.city == 'jaipur' %}selected{% endif %}>Jaipur</option>
+                      <option value="lucknow" {% if company_profile and company_profile.city == 'lucknow' %}selected{% endif %}>Lucknow</option>
+                      <option value="chandigarh" {% if company_profile and company_profile.city == 'chandigarh' %}selected{% endif %}>Chandigarh</option>
+                      <option value="kochi" {% if company_profile and company_profile.city == 'kochi' %}selected{% endif %}>Kochi</option>
+                      <option value="indore" {% if company_profile and company_profile.city == 'indore' %}selected{% endif %}>Indore</option>
+                      <option value="mysore" {% if company_profile and company_profile.city == 'mysore' %}selected{% endif %}>Mysore</option>
+                      <option value="nagpur" {% if company_profile and company_profile.city == 'nagpur' %}selected{% endif %}>Nagpur</option>
+                      <option value="bhopal" {% if company_profile and company_profile.city == 'bhopal' %}selected{% endif %}>Bhopal</option>
+                      <option value="surat" {% if company_profile and company_profile.city == 'surat' %}selected{% endif %}>Surat</option>
+                      <option value="visakhapatnam" {% if company_profile and company_profile.city == 'visakhapatnam' %}selected{% endif %}>Visakhapatnam</option>
+                      <option value="thiruvananthapuram" {% if company_profile and company_profile.city == 'thiruvananthapuram' %}selected{% endif %}>Thiruvananthapuram</option>
+                      <option value="vadodara" {% if company_profile and company_profile.city == 'vadodara' %}selected{% endif %}>Vadodara</option>
+                    </select>
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-12 col-md-12">
+                    <label>Complete Address</label>
+                    <input
+                      type="text"
+                      name="company_address"
+                      placeholder="329 Queensberry Street, North Melbourne VIC 3051, Australia."
+                      value="{{ company_profile.company_address if company_profile else '' }}"
+                    />
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-12">
+                    <label>Google Map Embed Code</label>
+                    <input
+                      type="text"
+                      id="map-link"
+                      name="embed_code"
+                      placeholder="Get Embed Code From Google Map"
+                      value="{{ company_profile.embed_code if company_profile else '' }}"
+                    />
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-12 col-md-12">
+                    <button
+                      type="button"
+                      onclick="showMap()"
+                      class="theme-btn btn-style-three"
+                    >
+                      Search Location
+                    </button>
+                  </div>
+
+                  <div class="form-group col-lg-12 col-md-12">
+                    <div
+                      style="display: none"
+                      id="map-canvas"
+                      class="map-outer"
+                    ></div>
+                  </div>
+
+                  <!-- Input -->
+                  <div class="form-group col-lg-12 col-md-12">
+                    <button class="theme-btn btn-style-one">Save</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Dashboard -->
+
+<style>
+    .image-preview {
+      width: 150px;
+      height: 150px;
+      border: 2px dashed #e0e0e0;
+      border-radius: 100%;
+      position: relative;
+      overflow: hidden;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .upload-placeholder {
+      text-align: center;
+      color: #6c757d;
+    }
+    
+    .upload-placeholder i {
+      margin-bottom: 10px;
+    }
+    
+    .upload-placeholder p {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .hover-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+    
+    .change-image-text {
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    
+    .image-preview:hover .hover-overlay {
+      opacity: 1;
+    }
+    .cursor-pointer {
+      cursor: pointer;
+    }
+  </style>
+
+  <script>
+  function previewImage(input) {
+      const preview = document.getElementById('imagePreviewContainer');
+      const file = input.files[0];
+      
+      if (file) {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+              // Remove placeholder if exists
+              const placeholder = preview.querySelector('.upload-placeholder');
+              if(placeholder) {
+                  placeholder.remove();
+              }
+              
+              // Update or create image
+              let img = preview.querySelector('img');
+              if(!img) {
+                  img = document.createElement('img');
+                  img.id = 'imagePreview';
+                  img.className = 'img-fluid rounded';
+                  img.style = 'max-width: 200px; max-height: 200px; object-fit: contain;';
+                  preview.insertBefore(img, preview.firstChild);
+              }
+              img.src = e.target.result;
+          }
+          
+          reader.readAsDataURL(file);
+      }
+  }
+  </script>
+
+
+<script>
+  function showMap() {
+    var mapLink = document.getElementById("map-link").value; //mapLink
+    console.log(mapLink);
+    document.getElementById("map-canvas").innerHTML = mapLink;
+    document.getElementById("map-canvas").style.display = "block";
+  }
+</script>
+
+{% endblock %}

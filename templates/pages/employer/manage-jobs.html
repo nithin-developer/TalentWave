@@ -1,0 +1,114 @@
+{% extends 'base/e_layout.html' %} {% block title %}Manage Jobs{% endblock %}
+{% block content %}
+
+    <!-- Dashboard -->
+    <section class="user-dashboard">
+      <div class="dashboard-outer">
+        <div class="upper-title-box">
+          <h3>Manage Jobs</h3>
+          <div class="text">Ready to jump back in?</div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-12">
+            <!-- Ls widget -->
+            <div class="ls-widget">
+              <div class="tabs-box">
+                <div class="widget-title">
+                  <h4>My Job Listings</h4>
+
+                  <div class="chosen-outer">
+                    <!--Tabs Box-->
+                    <select class="chosen-select">
+                      <option>Last 6 Months</option>
+                      <option>Last 12 Months</option>
+                      <option>Last 16 Months</option>
+                      <option>Last 24 Months</option>
+                      <option>Last 5 year</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="widget-content">
+                  <div class="table-outer">
+                    <table class="default-table manage-job-table">
+                      <thead>
+                        <tr>
+                          <th>Title</th>
+                          <th>Applications</th>
+                          <th>Created & Expired</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                          <td>
+                            <h6>{{ job.title }}</h6>
+                            <span class="info"><i class="icon flaticon-map-locator"></i> {{ job.company_name }}</span>
+                          </td>
+                          <td class="applied"><a href="#">0 Applied</a></td>
+                          <td>{{ job.created_at.strftime('%B %d, %Y') }} <br>{{ job.deadline.strftime('%B %d, %Y') }}</td>
+                          <td class="status">{{ job.status|title }}</td>
+                          <td>
+                            <div class="option-box">
+                              <ul class="option-list">
+                                <li><button data-text="Delete Job" data-job-id="{{ job.id }}" onclick="confirmDelete('{{ job.id }}', '{{ job.title }}')"><span class="la la-trash"></span></button></li>
+                                <script>
+                                function confirmDelete(jobId, jobTitle) {
+                                    Swal.fire({
+                                        title: 'Are you sure?',
+                                        text: `Do you want to delete job "${jobTitle}"?`,
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Yes, delete it!'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            fetch(`/employer/delete-job?job_id=${jobId}`, {
+                                                method: 'POST'
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if(data.success) {
+                                                    Swal.fire(
+                                                        'Deleted!',
+                                                        'The job has been deleted.',
+                                                        'success'
+                                                    ).then(() => {
+                                                        window.location.reload();
+                                                    });
+                                                } else {
+                                                    Swal.fire(
+                                                        'Error!',
+                                                        'Failed to delete the job.',
+                                                        'error'
+                                                    );
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                </script>
+                              </ul>
+                            </div>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </section>
+    <!-- End Dashboard -->
+{% endblock %} 
