@@ -176,14 +176,14 @@ class Database:
 
             query = "SELECT * FROM companies WHERE employer_id = %s"
             cursor.execute(query, (employer_id,))
-            
+
             # Explicitly fetch the result before closing the cursor
             result = cursor.fetchone()
-            
+
             # Make sure to consume any remaining results
             if cursor.with_rows:
                 cursor.fetchall()
-                
+
             return result
         except Error as e:
             print(f"Error getting company profile: {e}")
@@ -268,7 +268,7 @@ class Database:
 
     # Job Management Functions
     @staticmethod
-    def post_new_job(job_id, company_id, employer_id, title, description, specialisms, job_type, 
+    def post_new_job(job_id, company_id, employer_id, title, description, specialisms, job_type,
                      salary, career_level, experience, gender, industry, qualification, deadline):
         """Create a new job posting in the database."""
         connection = None
@@ -287,7 +287,7 @@ class Database:
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 'active'
             )"""
-            
+
             values = (
                 job_id, company_id, employer_id, title, description, specialisms, job_type,
                 salary, career_level, experience, gender, industry, qualification, deadline
@@ -303,7 +303,7 @@ class Database:
             return False
         finally:
             Database.close_connection(connection, cursor)
-            
+
     @staticmethod
     def get_company_id_by_employer_id(employer_id):
         """Get company ID for an employer."""
@@ -318,21 +318,21 @@ class Database:
 
             query = "SELECT id FROM companies WHERE employer_id = %s"
             cursor.execute(query, (employer_id,))
-            
+
             # Explicitly fetch the result before closing the cursor
             result = cursor.fetchone()
-            
+
             # Make sure to consume any remaining results
             if cursor.with_rows:
                 cursor.fetchall()
-                
+
             return result['id'] if result else None
         except Error as e:
             print(f"Error getting company ID: {e}")
             return None
         finally:
             Database.close_connection(connection, cursor)
-            
+
     @staticmethod
     def get_employer_jobs(employer_id):
         """Get all jobs posted by an employer."""
@@ -346,21 +346,21 @@ class Database:
             cursor = connection.cursor(dictionary=True)
 
             query = """
-                SELECT j.*, c.* 
+                SELECT j.id AS job_id, j.*, c.id AS company_id, c.* 
                 FROM jobs j
                 JOIN companies c ON j.company_id = c.id
                 WHERE j.employer_id = %s
                 ORDER BY j.created_at DESC
             """
             cursor.execute(query, (employer_id,))
-            
+
             # Explicitly fetch the result before closing the cursor
             result = cursor.fetchall()
-            
+
             # Make sure to consume any remaining results
             if cursor.with_rows:
                 cursor.fetchall()
-                
+
             return result
         except Error as e:
             print(f"Error getting employer jobs: {e}")
@@ -405,11 +405,11 @@ class Database:
             cursor = connection.cursor(dictionary=True)
 
             query = """
-                SELECT j.*, c.*
-                FROM jobs j
-                JOIN companies c ON j.company_id = c.id 
-                WHERE j.status = 'active'
-                ORDER BY j.created_at DESC
+            SELECT j.id AS job_id, j.*, c.id AS company_id, c.*
+            FROM jobs j
+            JOIN companies c ON j.company_id = c.id 
+            WHERE j.status = 'active'
+            ORDER BY j.created_at DESC;
             """
             cursor.execute(query)
 
@@ -429,7 +429,7 @@ class Database:
     @staticmethod
     def get_filtered_jobs(filters):
         """Get jobs with specified filters.
-        
+
         Args:
             filters (dict): A dictionary containing filter parameters
                 - keywords: Search term for job title, description or company name
@@ -447,43 +447,44 @@ class Database:
                 return None
 
             cursor = connection.cursor(dictionary=True)
-            
+
             # Start with base query
             query = """
-                SELECT j.*, c.*
+                SELECT j.id AS job_id, j.*, c.id AS company_id, c.*
                 FROM jobs j
                 JOIN companies c ON j.company_id = c.id 
                 WHERE j.status = 'active'
             """
             parameters = []
-            
+
             # Add filters
             if filters.get('keywords'):
                 query += """ AND (j.title LIKE %s OR j.description LIKE %s OR c.company_name LIKE %s)"""
                 keyword_param = f"%{filters['keywords']}%"
-                parameters.extend([keyword_param, keyword_param, keyword_param])
-                
+                parameters.extend(
+                    [keyword_param, keyword_param, keyword_param])
+
             if filters.get('location'):
                 query += """ AND (c.city LIKE %s OR c.country LIKE %s)"""
                 location_param = f"%{filters['location']}%"
                 parameters.extend([location_param, location_param])
-                
+
             if filters.get('industry') and filters['industry'] != "":
                 query += """ AND j.industry = %s"""
                 parameters.append(filters['industry'])
-                
+
             if filters.get('job_type') and len(filters['job_type']) > 0:
                 placeholders = ', '.join(['%s'] * len(filters['job_type']))
                 query += f""" AND j.job_type IN ({placeholders})"""
                 parameters.extend(filters['job_type'])
-                
+
             if filters.get('experience_level') and filters['experience_level'] != 'all':
                 query += """ AND j.career_level = %s"""
                 parameters.append(filters['experience_level'])
-                
+
             if filters.get('date_posted') and filters['date_posted'] != 'all':
                 now = datetime.datetime.now()
-                
+
                 if filters['date_posted'] == 'last_hour':
                     time_ago = now - datetime.timedelta(hours=1)
                 elif filters['date_posted'] == 'last_24_hours':
@@ -496,18 +497,142 @@ class Database:
                     time_ago = now - datetime.timedelta(days=30)
                 else:
                     time_ago = None
-                    
+
                 if time_ago:
                     query += """ AND j.created_at >= %s"""
                     parameters.append(time_ago)
-            
+
             # Add order by
             query += " ORDER BY j.created_at DESC"
-            
+
             # Execute query
             cursor.execute(query, parameters)
-            
+
             # Fetch results
+            result = cursor.fetchall()
+
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+
+            return result
+        except Error as e:
+            print(f"Error filtering jobs: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_job_details(job_id):
+        """Get details of a specific job by its ID."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT j.id AS job_id, j.*, c.id AS company_id, c.*
+                FROM jobs j 
+                JOIN companies c ON j.company_id = c.id
+                WHERE j.id = %s
+            """
+            cursor.execute(query, (job_id,))
+            # Explicitly fetch the result before closing the cursor
+            result = cursor.fetchone()
+
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+
+            return result
+        except Error as e:
+            print(f"Error getting job details: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def has_user_applied(user_id, job_id):
+        """Check if a user has already applied for a specific job."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            query = """
+                SELECT COUNT(*) 
+                FROM job_applications 
+                WHERE user_id = %s AND job_id = %s
+            """
+            cursor.execute(query, (user_id, job_id))
+            result = cursor.fetchone()[0]
+            
+            return result > 0
+        except Error as e:
+            print(f"Error checking application status: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+            
+    @staticmethod
+    def submit_job_application(application_id, user_id, job_id):
+        """Submit a new job application."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            # Insert application
+            query = """
+                INSERT INTO job_applications 
+                (id, user_id, job_id, status, applied_date)
+                VALUES (%s, %s, %s, 'pending', NOW())
+            """
+            cursor.execute(query, (application_id, user_id, job_id))
+            connection.commit()
+            
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error submitting job application: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_similar_jobs(job_id, industry, limit=3):
+        """Get similar jobs based on the same industry, excluding the current job."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT j.id AS job_id, j.*, c.id AS company_id, c.*
+                FROM jobs j 
+                JOIN companies c ON j.company_id = c.id
+                WHERE j.industry = %s AND j.id != %s AND j.status = 'active'
+                ORDER BY j.created_at DESC
+                LIMIT %s
+            """
+            cursor.execute(query, (industry, job_id, limit))
             result = cursor.fetchall()
             
             # Make sure to consume any remaining results
@@ -516,8 +641,231 @@ class Database:
                 
             return result
         except Error as e:
-            print(f"Error filtering jobs: {e}")
+            print(f"Error getting similar jobs: {e}")
             return None
         finally:
             Database.close_connection(connection, cursor)
 
+    @staticmethod
+    def get_applied_jobs(user_id):
+        """Get all jobs a user has applied for."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT j.id AS job_id, j.*, c.id AS company_id, c.*, ja.id AS application_id, ja.*
+                FROM job_applications ja
+                JOIN jobs j ON ja.job_id = j.id
+                JOIN companies c ON j.company_id = c.id
+                WHERE ja.user_id = %s 
+            """
+            cursor.execute(query, (user_id,))
+            result = cursor.fetchall()
+
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+
+            return result
+        except Error as e:
+            print(f"Error getting applied jobs: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def delete_job_application(application_id, user_id):
+        """Delete a job application."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            query = """
+                DELETE FROM job_applications
+                WHERE id = %s AND user_id = %s
+            """
+            cursor.execute(query, (application_id, user_id))
+            connection.commit()
+
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error deleting job application: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_candidate_profile(user_id):
+        """Get candidate profile by user ID."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                        SELECT cp.*, u.first_name, u.last_name
+                        FROM candidate_profiles cp
+                        JOIN users u ON cp.user_id = u.user_id
+                        WHERE cp.user_id = %s
+                    """
+            cursor.execute(query, (user_id,))
+
+            # Explicitly fetch the result before closing the cursor
+            result = cursor.fetchone()
+
+            # Make sure to consume any remaining results
+            if cursor.with_rows:
+                cursor.fetchall()
+
+            return result
+        except Error as e:
+            print(f"Error getting candidate profile: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def update_candidate_profile(profile_id, phone, email, 
+                                date_of_birth, gender, resume_path, skills, 
+                                experience, country, city, address, about):
+        """Update candidate profile."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+            cursor = connection.cursor()
+
+            query = """UPDATE candidate_profiles SET
+                phone = %s, email = %s,
+                date_of_birth = %s, gender = %s, resume_path = %s, skills = %s,
+                experience = %s, country = %s, city = %s, address = %s, about = %s
+                WHERE profile_id = %s"""
+            values = (
+                phone, email, date_of_birth, gender, 
+                resume_path, skills, experience, country, city, address, about, profile_id
+            )
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error updating candidate profile: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def insert_candidate_profile(profile_id, user_id, phone, email, 
+                                date_of_birth, gender, resume_path, skills, 
+                                experience, country, city, address, about):
+        """Insert candidate profile."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            query = """INSERT INTO candidate_profiles (
+                profile_id, user_id, phone, email,
+                date_of_birth, gender, resume_path, skills, experience,
+                country, city, address, about
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            )"""
+            values = (
+                profile_id, user_id, phone, email,
+                date_of_birth, gender, resume_path, skills, experience,
+                country, city, address, about
+            )
+
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error inserting candidate profile: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def update_user_name(user_id, first_name, last_name):
+        """Update user's first name and last name in the users table."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+            cursor = connection.cursor()
+
+            query = """UPDATE users SET
+                first_name = %s, last_name = %s
+                WHERE user_id = %s"""
+            values = (first_name, last_name, user_id)
+            
+            cursor.execute(query, values)
+            connection.commit()
+            return True
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error updating user name: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def check_is_profile_completed(user_id):
+        """Check if candidate profile is completed."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return False
+
+            cursor = connection.cursor()
+
+            # Check all required fields are filled in the candidate_profiles table
+            query = """
+                SELECT COUNT(*) FROM candidate_profiles
+                WHERE user_id = %s AND phone IS NOT NULL AND email IS NOT NULL AND
+                date_of_birth IS NOT NULL AND gender IS NOT NULL AND
+                resume_path IS NOT NULL AND skills IS NOT NULL AND
+                experience IS NOT NULL AND country IS NOT NULL AND
+                city IS NOT NULL AND address IS NOT NULL AND about IS NOT NULL
+            """
+            cursor.execute(query, (user_id,))
+            count = cursor.fetchone()[0]
+
+            return count > 0 
+        except Error as e:
+            print(f"Error checking profile completion: {e}")
+            return False
+        finally:
+            Database.close_connection(connection, cursor)

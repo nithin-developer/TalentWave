@@ -1,0 +1,254 @@
+{% extends 'base/c_layout.html' %} {% block title %} Candidate Profile {% endblock %}
+{% block content %}
+
+<!-- Dashboard -->
+<section class="user-dashboard">
+    <div class="dashboard-outer">
+        <div class="upper-title-box">
+            <h3>My Profile</h3>
+            <div class="text">Ready to jump back in?</div>
+        </div>
+
+        {% if alerts %}
+        <div class="message-box {{ alerts[0] }}">
+            <p>{{ alerts[1] }}</p>
+            <button class="close-btn"><span class="close_icon"></span></button>
+        </div>
+        {% endif %}
+
+        {% if not is_completed %}
+        <div class="mb-4">
+            <p class="alert alert-danger">Please complete your profile to apply for jobs</p>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Ls widget -->
+                <div class="ls-widget">
+                    <div class="tabs-box">
+                        <div class="widget-title">
+                            <h4>My Profile</h4>
+                        </div>
+
+                        <div class="widget-content">
+                            <form class="default-form" method="post"
+                                action="{{ url_for('candidate_profile.update_profile') }}"
+                                enctype="multipart/form-data">
+                                <!-- Upload Resume -->
+                                <div class="form-group">
+                                    <label for="upload">Upload Your Resume</label>
+                                    <input type="file" id="upload" name="resume" accept=".pdf, .doc, .docx"
+                                        class="form-control mt-2">
+                                    {% if candidate_profile and candidate_profile.resume_path %}
+                                    <!-- Uploaded State -->
+                                    <div class="uploaded-state mt-2" id="uploaded-state">
+                                        <p> <i class="la la-check"></i> Resume uploaded</p>
+                                    </div>
+                                    {% else %}
+                                    <!-- Uploaded State -->
+                                    <div class="uploaded-state mt-3" id="uploaded-state">
+                                        <p class="alert alert-warning">Warning: Resume not uploaded yet.</p>
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>First name</label>
+                                        <input type="text" name="first_name" placeholder="John"
+                                            value="{{ candidate_profile.first_name if candidate_profile else (session.first_name if session else '') }}" />
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Last name</label>
+                                        <input type="text" name="last_name" placeholder="Doe"
+                                            value="{{ candidate_profile.last_name if candidate_profile else (session.last_name if session else '') }}" />
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Email address</label>
+                                        <input type="email" disabled placeholder="john.doe@example.com"
+                                            value="{{ candidate_profile.email if candidate_profile else (session.email if session else '') }}" />
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Phone number</label>
+                                        <input type="text" name="phone" placeholder="0 123 456 7890"
+                                            value="{{ candidate_profile.phone if candidate_profile else '' }}" />
+                                    </div>
+
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Skills & Expertise</label>
+                                        <select data-placeholder="Select your skills" class="chosen-select multiple"
+                                            multiple tabindex="4" name="specialisms[]" id="specialisms">
+                                            {% set skills_list = candidate_profile.skills.split(',') if candidate_profile and candidate_profile.skills else [] %}
+                                            <option value="Java" {% if "Java" in skills_list %}selected{% endif %}>Java</option>
+                                            <option value="Python" {% if "Python" in skills_list %}selected{% endif %}>Python</option>
+                                            <option value="JavaScript" {% if "JavaScript" in skills_list %}selected{% endif %}>JavaScript</option>
+                                            <option value="React" {% if "React" in skills_list %}selected{% endif %}>React</option>
+                                            <option value="Angular" {% if "Angular" in skills_list %}selected{% endif %}>Angular</option>
+                                            <option value="Vue.js" {% if "Vue.js" in skills_list %}selected{% endif %}>Vue.js</option>
+                                            <option value="Node.js" {% if "Node.js" in skills_list %}selected{% endif %}>Node.js</option>
+                                            <option value="PHP" {% if "PHP" in skills_list %}selected{% endif %}>PHP</option>
+                                            <option value="Laravel" {% if "Laravel" in skills_list %}selected{% endif %}>Laravel</option>
+                                            <option value=".NET" {% if ".NET" in skills_list %}selected{% endif %}>.NET</option>
+                                            <option value="C#" {% if "C#" in skills_list %}selected{% endif %}>C#</option>
+                                            <option value="SQL" {% if "SQL" in skills_list %}selected{% endif %}>SQL</option>
+                                            <option value="NoSQL" {% if "NoSQL" in skills_list %}selected{% endif %}>NoSQL</option>
+                                            <option value="MongoDB" {% if "MongoDB" in skills_list %}selected{% endif %}>MongoDB</option>
+                                            <option value="AWS" {% if "AWS" in skills_list %}selected{% endif %}>AWS</option>
+                                            <option value="Azure" {% if "Azure" in skills_list %}selected{% endif %}>Azure</option>
+                                            <option value="DevOps" {% if "DevOps" in skills_list %}selected{% endif %}>DevOps</option>
+                                            <option value="Docker" {% if "Docker" in skills_list %}selected{% endif %}>Docker</option>
+                                            <option value="Kubernetes" {% if "Kubernetes" in skills_list %}selected{% endif %}>Kubernetes</option>
+                                            <option value="Machine Learning" {% if "Machine Learning" in skills_list %}selected{% endif %}>Machine Learning</option>
+                                            <option value="AI" {% if "AI" in skills_list %}selected{% endif %}>AI</option>
+                                            <option value="Data Science" {% if "Data Science" in skills_list %}selected{% endif %}>Data Science</option>
+                                            <option value="Blockchain" {% if "Blockchain" in skills_list %}selected{% endif %}>Blockchain</option>
+                                            <option value="Mobile Development" {% if "Mobile Development" in skills_list %}selected{% endif %}>Mobile Development</option>
+                                            <option value="iOS" {% if "iOS" in skills_list %}selected{% endif %}>iOS</option>
+                                            <option value="Android" {% if "Android" in skills_list %}selected{% endif %}>Android</option>
+                                            <option value="Flutter" {% if "Flutter" in skills_list %}selected{% endif %}>Flutter</option>
+                                            <option value="React Native" {% if "React Native" in skills_list %}selected{% endif %}>React Native</option>
+                                            <option value="UI/UX" {% if "UI/UX" in skills_list %}selected{% endif %}>UI/UX</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Experience</label>
+                                        <select class="chosen-select" name="experience" id="experience">
+                                            <option value="">Select Your Experience</option>
+                                            <option value="Fresher" {% if candidate_profile and candidate_profile.experience=='Fresher' %}selected{% endif %}>
+                                                Fresher</option>
+                                            <option value="1-2 Years" {% if candidate_profile and candidate_profile.experience=='1-2 Years' %}selected{% endif %}>1-2 Years
+                                            </option>
+                                            <option value="2-3 Years" {% if candidate_profile and candidate_profile.experience=='2-3 Years' %}selected{% endif %}>2-3 Years
+                                            </option>
+                                            <option value="3-5 Years" {% if candidate_profile and candidate_profile.experience=='3-5 Years' %}selected{% endif %}>3-5 Years
+                                            </option>
+                                            <option value="5-7 Years" {% if candidate_profile and candidate_profile.experience=='5-7 Years' %}selected{% endif %}>5-7 Years
+                                            </option>
+                                            <option value="7-10 Years" {% if candidate_profile and candidate_profile.experience=='7-10 Years' %}selected{% endif %}>7-10 Years
+                                            </option>
+                                            <option value="10+ Years" {% if candidate_profile and candidate_profile.experience=='10+ Years' %}selected{% endif %}>10+ Years
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Gender</label>
+                                        <select class="chosen-select" name="gender" id="gender">
+                                            <option value="">Select Gender</option>
+                                            <option value="Male" {% if candidate_profile and candidate_profile.gender=='Male' %}selected{% endif %}>Male
+                                            </option>
+                                            <option value="Female" {% if candidate_profile and candidate_profile.gender=='Female' %}selected{% endif %}>Female
+                                            </option>
+                                            <option value="Other" {% if candidate_profile and candidate_profile.gender=='Other' %}selected{% endif %}>Other
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label class="mb-2 block text-sm font-medium">Date of Birth</label>
+                                        <input type="text" id="date-of-birth-picker" placeholder="Select Date" readonly
+                                            name="date_of_birth"
+                                            value="{{ candidate_profile.date_of_birth if candidate_profile else '' }}" />
+                                    </div>
+                                    <link rel="stylesheet"
+                                        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+                                    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            flatpickr("#date-of-birth-picker", {
+                                                dateFormat: "Y-m-d",
+                                                maxDate: "today",
+                                                disableMobile: "true",
+                                                allowInput: true,
+                                                animate: true,
+                                                theme: "light",
+                                            });
+                                        });
+                                    </script>
+
+                                    <!-- About Me -->
+                                    <div class="form-group col-lg-12 col-md-12">
+                                        <label>About Me</label>
+                                        <textarea name="about_me"
+                                            placeholder="Tell us about yourself, your skills, experience, and career goals">{{ candidate_profile.about if candidate_profile else '' }}</textarea>
+                                    </div>
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>Country</label>
+                                        <select class="chosen-select" name="country">
+                                            <option value="">Select Country</option>
+                                            <option value="australia" {% if candidate_profile and candidate_profile.country=='australia' %}selected{% endif %}>Australia
+                                            </option>
+                                            <option value="america" {% if candidate_profile and candidate_profile.country=='america' %}selected{% endif %}>America
+                                            </option>
+                                            <option value="china" {% if candidate_profile and candidate_profile.country=='china' %}selected{% endif %}>China</option>
+                                            <option value="japan" {% if candidate_profile and candidate_profile.country=='japan' %}selected{% endif %}>Japan</option>
+                                            <option value="india" {% if candidate_profile and candidate_profile.country=='india' %}selected{% endif %}>India</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-6 col-md-12">
+                                        <label>City</label>
+                                        <select class="chosen-select" name="city">
+                                            <option value="">Select City</option>
+                                            <option value="mumbai" {% if candidate_profile and candidate_profile.city=='mumbai' %}selected{% endif %}>Mumbai</option>
+                                            <option value="delhi" {% if candidate_profile and candidate_profile.city=='delhi' %}selected{% endif %}>Delhi</option>
+                                            <option value="bangalore" {% if candidate_profile and candidate_profile.city=='bangalore' %}selected{% endif %}>Bangalore
+                                            </option>
+                                            <option value="hyderabad" {% if candidate_profile and candidate_profile.city=='hyderabad' %}selected{% endif %}>Hyderabad
+                                            </option>
+                                            <option value="chennai" {% if candidate_profile and candidate_profile.city=='chennai' %}selected{% endif %}>Chennai</option>
+                                            <option value="kolkata" {% if candidate_profile and candidate_profile.city=='kolkata' %}selected{% endif %}>Kolkata</option>
+                                            <option value="pune" {% if candidate_profile and candidate_profile.city=='pune' %}selected{% endif %}>Pune</option>
+                                            <option value="ahmedabad" {% if candidate_profile and candidate_profile.city=='ahmedabad' %}selected{% endif %}>Ahmedabad
+                                            </option>
+                                            <option value="jaipur" {% if candidate_profile and candidate_profile.city=='jaipur' %}selected{% endif %}>Jaipur</option>
+                                            <option value="lucknow" {% if candidate_profile and candidate_profile.city=='lucknow' %}selected{% endif %}>Lucknow</option>
+                                            <option value="chandigarh" {% if candidate_profile and candidate_profile.city=='chandigarh' %}selected{% endif %}>Chandigarh
+                                            </option>
+                                            <option value="kochi" {% if candidate_profile and candidate_profile.city=='kochi' %}selected{% endif %}>Kochi</option>
+                                            <option value="indore" {% if candidate_profile and candidate_profile.city=='indore' %}selected{% endif %}>Indore</option>
+                                            <option value="mysore" {% if candidate_profile and candidate_profile.city=='mysore' %}selected{% endif %}>Mysore</option>
+                                            <option value="nagpur" {% if candidate_profile and candidate_profile.city=='nagpur' %}selected{% endif %}>Nagpur</option>
+                                            <option value="bhopal" {% if candidate_profile and candidate_profile.city=='bhopal' %}selected{% endif %}>Bhopal</option>
+                                            <option value="surat" {% if candidate_profile and candidate_profile.city=='surat' %}selected{% endif %}>Surat</option>
+                                            <option value="visakhapatnam" {% if candidate_profile and candidate_profile.city=='visakhapatnam' %}selected{% endif %}>
+                                                Visakhapatnam</option>
+                                            <option value="thiruvananthapuram" {% if candidate_profile and candidate_profile.city=='thiruvananthapuram' %}selected{% endif %}>
+                                                Thiruvananthapuram</option>
+                                            <option value="vadodara" {% if candidate_profile and candidate_profile.city=='vadodara' %}selected{% endif %}>Vadodara</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-12 col-md-12">
+                                        <label>Complete Address</label>
+                                        <input type="text" name="address"
+                                            placeholder="123 Main Street, Apartment 4B, City, State, ZIP"
+                                            value="{{ candidate_profile.address if candidate_profile else '' }}" />
+                                    </div>
+
+                                    <!-- Input -->
+                                    <div class="form-group col-lg-12 col-md-12">
+                                        <button class="theme-btn btn-style-one">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Dashboard -->
+
+{% endblock %}

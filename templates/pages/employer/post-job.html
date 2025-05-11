@@ -1,6 +1,19 @@
 {% extends 'base/e_layout.html' %} {% block title %}Post New Job{% endblock %}
 {% block content %}
 
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/wtf0gze4zyzxmgnh0x7yvd81t9ctvw467ecx620pyfy6eodk/tinymce/7/tinymce.min.js"
+  referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: 'lists link visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough |  bullist numlist | link',
+  });
+</script>
+
 <!-- Dashboard -->
 <section class="user-dashboard">
   <div class="dashboard-outer">
@@ -32,37 +45,28 @@
             </div>
 
             <div class="widget-content">
-              <form class="default-form" method="post" action="{{ url_for('employer_jobs.post_new_job') }}" id="jobPostForm">
+              <form class="default-form" method="post" action="{{ url_for('employer_jobs.post_new_job') }}"
+                id="jobPostForm">
                 <div class="row">
                   <!-- Input -->
                   <div class="form-group col-lg-12 col-md-12">
                     <label>Job Title <span class="required">*</span></label>
-                    <input type="text" name="job_title" id="job_title" placeholder="e.g. Senior Software Engineer" value="{{ form_data.job_title if form_data else '' }}" required />
+                    <input type="text" name="job_title" id="job_title" placeholder="e.g. Senior Software Engineer"
+                      value="{{ form_data.job_title if form_data else '' }}" required />
                   </div>
 
                   <!-- About Company -->
                   <div class="form-group col-lg-12 col-md-12">
                     <label>Job Description <span class="required">*</span></label>
-                    <textarea
-                      name="job_description"
-                      id="job_description"
-                      placeholder="Describe the responsibilities, skills required, and other details for this job"
-                      required
-                    >{{ form_data.job_description if form_data else '' }}</textarea>
+                    <textarea name="job_description" id="job_description"
+                      placeholder="Describe the responsibilities, skills required, and other details for this job">{{ form_data.job_description if form_data else '' }}</textarea>
                   </div>
-                  
+
                   <!-- Search Select -->
                   <div class="form-group col-lg-6 col-md-12">
-                    <label>Specialisms <span class="required">*</span></label>
-                    <select
-                      data-placeholder="Select skills required"
-                      class="chosen-select multiple"
-                      multiple
-                      tabindex="4"
-                      name="specialisms[]"
-                      id="specialisms"
-                      required
-                    >
+                    <label>Skills Required <span class="required">*</span></label>
+                    <select data-placeholder="Select skills required" class="chosen-select multiple" multiple
+                      tabindex="4" name="specialisms[]" id="specialisms" required>
                       <option value="Java">Java</option>
                       <option value="Python">Python</option>
                       <option value="JavaScript">JavaScript</option>
@@ -99,12 +103,18 @@
                     <label>Job Type <span class="required">*</span></label>
                     <select class="chosen-select" name="job_type" id="job_type" required>
                       <option value="">Select Job Type</option>
-                      <option value="Full Time" {% if form_data and form_data.job_type == 'Full Time' %}selected{% endif %}>Full Time</option>
-                      <option value="Part Time" {% if form_data and form_data.job_type == 'Part Time' %}selected{% endif %}>Part Time</option>
-                      <option value="Contract" {% if form_data and form_data.job_type == 'Contract' %}selected{% endif %}>Contract</option>
-                      <option value="Internship" {% if form_data and form_data.job_type == 'Internship' %}selected{% endif %}>Internship</option>
-                      <option value="Freelance" {% if form_data and form_data.job_type == 'Freelance' %}selected{% endif %}>Freelance</option>
-                      <option value="Remote" {% if form_data and form_data.job_type == 'Remote' %}selected{% endif %}>Remote</option>
+                      <option value="Full Time" {% if form_data and form_data.job_type=='Full Time' %}selected{% endif
+                        %}>Full Time</option>
+                      <option value="Part Time" {% if form_data and form_data.job_type=='Part Time' %}selected{% endif
+                        %}>Part Time</option>
+                      <option value="Contract" {% if form_data and form_data.job_type=='Contract' %}selected{% endif %}>
+                        Contract</option>
+                      <option value="Internship" {% if form_data and form_data.job_type=='Internship' %}selected{% endif
+                        %}>Internship</option>
+                      <option value="Freelance" {% if form_data and form_data.job_type=='Freelance' %}selected{% endif
+                        %}>Freelance</option>
+                      <option value="Remote" {% if form_data and form_data.job_type=='Remote' %}selected{% endif %}>
+                        Remote</option>
                     </select>
                   </div>
 
@@ -113,13 +123,20 @@
                     <label>Offered Salary <span class="required">*</span></label>
                     <select class="chosen-select" name="salary" id="salary" required>
                       <option value="">Select Salary Range</option>
-                      <option value="₹3L-₹5L" {% if form_data and form_data.salary == '₹3L-₹5L' %}selected{% endif %}>₹3L-₹5L</option>
-                      <option value="₹5L-₹7L" {% if form_data and form_data.salary == '₹5L-₹7L' %}selected{% endif %}>₹5L-₹7L</option>
-                      <option value="₹7L-₹10L" {% if form_data and form_data.salary == '₹7L-₹10L' %}selected{% endif %}>₹7L-₹10L</option>
-                      <option value="₹10L-₹15L" {% if form_data and form_data.salary == '₹10L-₹15L' %}selected{% endif %}>₹10L-₹15L</option>
-                      <option value="₹15L-₹20L" {% if form_data and form_data.salary == '₹15L-₹20L' %}selected{% endif %}>₹15L-₹20L</option>
-                      <option value="₹20L-₹30L" {% if form_data and form_data.salary == '₹20L-₹30L' %}selected{% endif %}>₹20L-₹30L</option>
-                      <option value="₹30L+" {% if form_data and form_data.salary == '₹30L+' %}selected{% endif %}>₹30L+</option>
+                      <option value="₹3L-₹5L" {% if form_data and form_data.salary=='₹3L-₹5L' %}selected{% endif %}>
+                        ₹3L-₹5L</option>
+                      <option value="₹5L-₹7L" {% if form_data and form_data.salary=='₹5L-₹7L' %}selected{% endif %}>
+                        ₹5L-₹7L</option>
+                      <option value="₹7L-₹10L" {% if form_data and form_data.salary=='₹7L-₹10L' %}selected{% endif %}>
+                        ₹7L-₹10L</option>
+                      <option value="₹10L-₹15L" {% if form_data and form_data.salary=='₹10L-₹15L' %}selected{% endif %}>
+                        ₹10L-₹15L</option>
+                      <option value="₹15L-₹20L" {% if form_data and form_data.salary=='₹15L-₹20L' %}selected{% endif %}>
+                        ₹15L-₹20L</option>
+                      <option value="₹20L-₹30L" {% if form_data and form_data.salary=='₹20L-₹30L' %}selected{% endif %}>
+                        ₹20L-₹30L</option>
+                      <option value="₹30L+" {% if form_data and form_data.salary=='₹30L+' %}selected{% endif %}>₹30L+
+                      </option>
                     </select>
                   </div>
 
@@ -127,15 +144,24 @@
                     <label>Career Level</label>
                     <select class="chosen-select" name="career_level" id="career_level">
                       <option value="">Select Career Level</option>
-                      <option value="Entry Level" {% if form_data and form_data.career_level == 'Entry Level' %}selected{% endif %}>Entry Level</option>
-                      <option value="Junior" {% if form_data and form_data.career_level == 'Junior' %}selected{% endif %}>Junior</option>
-                      <option value="Mid Level" {% if form_data and form_data.career_level == 'Mid Level' %}selected{% endif %}>Mid Level</option>
-                      <option value="Senior" {% if form_data and form_data.career_level == 'Senior' %}selected{% endif %}>Senior</option>
-                      <option value="Lead" {% if form_data and form_data.career_level == 'Lead' %}selected{% endif %}>Lead</option>
-                      <option value="Manager" {% if form_data and form_data.career_level == 'Manager' %}selected{% endif %}>Manager</option>
-                      <option value="Director" {% if form_data and form_data.career_level == 'Director' %}selected{% endif %}>Director</option>
-                      <option value="VP" {% if form_data and form_data.career_level == 'VP' %}selected{% endif %}>VP</option>
-                      <option value="CXO" {% if form_data and form_data.career_level == 'CXO' %}selected{% endif %}>CXO</option>
+                      <option value="Entry Level" {% if form_data and form_data.career_level=='Entry Level' %}selected{%
+                        endif %}>Entry Level</option>
+                      <option value="Junior" {% if form_data and form_data.career_level=='Junior' %}selected{% endif %}>
+                        Junior</option>
+                      <option value="Mid Level" {% if form_data and form_data.career_level=='Mid Level' %}selected{%
+                        endif %}>Mid Level</option>
+                      <option value="Senior" {% if form_data and form_data.career_level=='Senior' %}selected{% endif %}>
+                        Senior</option>
+                      <option value="Lead" {% if form_data and form_data.career_level=='Lead' %}selected{% endif %}>Lead
+                      </option>
+                      <option value="Manager" {% if form_data and form_data.career_level=='Manager' %}selected{% endif
+                        %}>Manager</option>
+                      <option value="Director" {% if form_data and form_data.career_level=='Director' %}selected{% endif
+                        %}>Director</option>
+                      <option value="VP" {% if form_data and form_data.career_level=='VP' %}selected{% endif %}>VP
+                      </option>
+                      <option value="CXO" {% if form_data and form_data.career_level=='CXO' %}selected{% endif %}>CXO
+                      </option>
                     </select>
                   </div>
 
@@ -143,13 +169,20 @@
                     <label>Experience</label>
                     <select class="chosen-select" name="experience" id="experience">
                       <option value="">Select Experience Required</option>
-                      <option value="Fresher" {% if form_data and form_data.experience == 'Fresher' %}selected{% endif %}>Fresher</option>
-                      <option value="1-2 Years" {% if form_data and form_data.experience == '1-2 Years' %}selected{% endif %}>1-2 Years</option>
-                      <option value="2-3 Years" {% if form_data and form_data.experience == '2-3 Years' %}selected{% endif %}>2-3 Years</option>
-                      <option value="3-5 Years" {% if form_data and form_data.experience == '3-5 Years' %}selected{% endif %}>3-5 Years</option>
-                      <option value="5-7 Years" {% if form_data and form_data.experience == '5-7 Years' %}selected{% endif %}>5-7 Years</option>
-                      <option value="7-10 Years" {% if form_data and form_data.experience == '7-10 Years' %}selected{% endif %}>7-10 Years</option>
-                      <option value="10+ Years" {% if form_data and form_data.experience == '10+ Years' %}selected{% endif %}>10+ Years</option>
+                      <option value="Fresher" {% if form_data and form_data.experience=='Fresher' %}selected{% endif %}>
+                        Fresher</option>
+                      <option value="1-2 Years" {% if form_data and form_data.experience=='1-2 Years' %}selected{% endif
+                        %}>1-2 Years</option>
+                      <option value="2-3 Years" {% if form_data and form_data.experience=='2-3 Years' %}selected{% endif
+                        %}>2-3 Years</option>
+                      <option value="3-5 Years" {% if form_data and form_data.experience=='3-5 Years' %}selected{% endif
+                        %}>3-5 Years</option>
+                      <option value="5-7 Years" {% if form_data and form_data.experience=='5-7 Years' %}selected{% endif
+                        %}>5-7 Years</option>
+                      <option value="7-10 Years" {% if form_data and form_data.experience=='7-10 Years' %}selected{%
+                        endif %}>7-10 Years</option>
+                      <option value="10+ Years" {% if form_data and form_data.experience=='10+ Years' %}selected{% endif
+                        %}>10+ Years</option>
                     </select>
                   </div>
 
@@ -157,10 +190,13 @@
                     <label>Gender</label>
                     <select class="chosen-select" name="gender" id="gender">
                       <option value="">Select Gender Preference</option>
-                      <option value="Any" {% if form_data and form_data.gender == 'Any' %}selected{% endif %}>Any</option>
-                      <option value="Male" {% if form_data and form_data.gender == 'Male' %}selected{% endif %}>Male</option>
-                      <option value="Female" {% if form_data and form_data.gender == 'Female' %}selected{% endif %}>Female</option>
-                      <option value="Other" {% if form_data and form_data.gender == 'Other' %}selected{% endif %}>Other</option>
+                      <option value="Any" {% if form_data and form_data.gender=='Any' %}selected{% endif %}>Any</option>
+                      <option value="Male" {% if form_data and form_data.gender=='Male' %}selected{% endif %}>Male
+                      </option>
+                      <option value="Female" {% if form_data and form_data.gender=='Female' %}selected{% endif %}>Female
+                      </option>
+                      <option value="Other" {% if form_data and form_data.gender=='Other' %}selected{% endif %}>Other
+                      </option>
                     </select>
                   </div>
 
@@ -168,18 +204,48 @@
                     <label>Industry</label>
                     <select class="chosen-select" name="industry" id="industry">
                       <option value="">Select Industry</option>
-                      <option value="IT Services" {% if form_data and form_data.industry == 'IT Services' %}selected{% endif %}>IT Services</option>
-                      <option value="Software Product" {% if form_data and form_data.industry == 'Software Product' %}selected{% endif %}>Software Product</option>
-                      <option value="E-commerce" {% if form_data and form_data.industry == 'E-commerce' %}selected{% endif %}>E-commerce</option>
-                      <option value="FinTech" {% if form_data and form_data.industry == 'FinTech' %}selected{% endif %}>FinTech</option>
-                      <option value="EdTech" {% if form_data and form_data.industry == 'EdTech' %}selected{% endif %}>EdTech</option>
-                      <option value="HealthTech" {% if form_data and form_data.industry == 'HealthTech' %}selected{% endif %}>HealthTech</option>
-                      <option value="AgriTech" {% if form_data and form_data.industry == 'AgriTech' %}selected{% endif %}>AgriTech</option>
-                      <option value="Telecom" {% if form_data and form_data.industry == 'Telecom' %}selected{% endif %}>Telecom</option>
-                      <option value="Manufacturing" {% if form_data and form_data.industry == 'Manufacturing' %}selected{% endif %}>Manufacturing</option>
-                      <option value="Banking & Finance" {% if form_data and form_data.industry == 'Banking & Finance' %}selected{% endif %}>Banking & Finance</option>
-                      <option value="Media & Entertainment" {% if form_data and form_data.industry == 'Media & Entertainment' %}selected{% endif %}>Media & Entertainment</option>
-                      <option value="Consulting" {% if form_data and form_data.industry == 'Consulting' %}selected{% endif %}>Consulting</option>
+                      <option value="Software Development" {% if form_data and
+                        form_data.industry=='Software Development' %}selected{% endif %}>Software Development</option>
+                      <option value="Web Development" {% if form_data and form_data.industry=='Web Development'
+                        %}selected{% endif %}>Web Development</option>
+                      <option value="Full Stack Development" {% if form_data and
+                        form_data.industry=='Full Stack Development' %}selected{% endif %}>Full Stack Development
+                      </option>
+                      <option value="DevOps & Cloud" {% if form_data and form_data.industry=='DevOps & Cloud'
+                        %}selected{% endif %}>DevOps & Cloud</option>
+                      <option value="Data Science & Analytics" {% if form_data and
+                        form_data.industry=='Data Science & Analytics' %}selected{% endif %}>Data Science & Analytics
+                      </option>
+                      <option value="Product Design" {% if form_data and form_data.industry=='Product Design'
+                        %}selected{% endif %}>Product Design</option>
+                      <option value="Software Quality Assurance" {% if form_data and
+                        form_data.industry=='Software Quality Assurance' %}selected{% endif %}>Software Quality
+                        Assurance</option>
+                      <option value="Product Management" {% if form_data and form_data.industry=='Product Management'
+                        %}selected{% endif %}>Product Management</option>
+                      <option value="Mobile Development" {% if form_data and form_data.industry=='Mobile Development'
+                        %}selected{% endif %}>Mobile Development</option>
+                      <option value="IT Infrastructure" {% if form_data and form_data.industry=='IT Infrastructure'
+                        %}selected{% endif %}>IT Infrastructure</option>
+                      <option value="Artificial Intelligence & Machine Learning" {% if form_data and
+                        form_data.industry=='Artificial Intelligence & Machine Learning' %}selected{% endif %}>
+                        Artificial Intelligence & Machine Learning</option>
+                      <option value="Cybersecurity" {% if form_data and form_data.industry=='Cybersecurity' %}selected{%
+                        endif %}>Cybersecurity</option>
+                      <option value="Networking" {% if form_data and form_data.industry=='Networking' %}selected{% endif
+                        %}>Networking</option>
+                      <option value="Database Management" {% if form_data and form_data.industry=='Database Management'
+                        %}selected{% endif %}>Database Management</option>
+                      <option value="IT Support" {% if form_data and form_data.industry=='IT Support' %}selected{% endif
+                        %}>IT Support</option>
+                      <option value="Blockchain & Web3" {% if form_data and form_data.industry=='Blockchain & Web3'
+                        %}selected{% endif %}>Blockchain & Web3</option>
+                      <option value="Game Development" {% if form_data and form_data.industry=='Game Development'
+                        %}selected{% endif %}>Game Development</option>
+                      <option value="IT Services" {% if form_data and form_data.industry=='IT Services' %}selected{%
+                        endif %}>IT Services</option>
+                      <option value="Software Product" {% if form_data and form_data.industry=='Software Product'
+                        %}selected{% endif %}>Software Product</option>
                     </select>
                   </div>
 
@@ -187,30 +253,41 @@
                     <label>Qualification</label>
                     <select class="chosen-select" name="qualification" id="qualification">
                       <option value="">Select Qualification Required</option>
-                      <option value="High School" {% if form_data and form_data.qualification == 'High School' %}selected{% endif %}>High School</option>
-                      <option value="Diploma" {% if form_data and form_data.qualification == 'Diploma' %}selected{% endif %}>Diploma</option>
-                      <option value="Bachelor's Degree" {% if form_data and form_data.qualification == 'Bachelor\'s Degree' %}selected{% endif %}>Bachelor's Degree</option>
-                      <option value="Master's Degree" {% if form_data and form_data.qualification == 'Master\'s Degree' %}selected{% endif %}>Master's Degree</option>
-                      <option value="Ph.D" {% if form_data and form_data.qualification == 'Ph.D' %}selected{% endif %}>Ph.D</option>
-                      <option value="B.Tech/B.E." {% if form_data and form_data.qualification == 'B.Tech/B.E.' %}selected{% endif %}>B.Tech/B.E.</option>
-                      <option value="M.Tech/M.E." {% if form_data and form_data.qualification == 'M.Tech/M.E.' %}selected{% endif %}>M.Tech/M.E.</option>
-                      <option value="BCA" {% if form_data and form_data.qualification == 'BCA' %}selected{% endif %}>BCA</option>
-                      <option value="MCA" {% if form_data and form_data.qualification == 'MCA' %}selected{% endif %}>MCA</option>
-                      <option value="B.Sc. Computer Science" {% if form_data and form_data.qualification == 'B.Sc. Computer Science' %}selected{% endif %}>B.Sc. Computer Science</option>
-                      <option value="M.Sc. Computer Science" {% if form_data and form_data.qualification == 'M.Sc. Computer Science' %}selected{% endif %}>M.Sc. Computer Science</option>
+                      <option value="High School" {% if form_data and form_data.qualification=='High School'
+                        %}selected{% endif %}>High School</option>
+                      <option value="Diploma" {% if form_data and form_data.qualification=='Diploma' %}selected{% endif
+                        %}>Diploma</option>
+                      <option value="Bachelor's Degree" {% if form_data and form_data.qualification=='Bachelor\' s
+                        Degree' %}selected{% endif %}>Bachelor's Degree</option>
+                      <option value="Master's Degree" {% if form_data and form_data.qualification=='Master\' s Degree'
+                        %}selected{% endif %}>Master's Degree</option>
+                      <option value="Ph.D" {% if form_data and form_data.qualification=='Ph.D' %}selected{% endif %}>
+                        Ph.D</option>
+                      <option value="B.Tech/B.E." {% if form_data and form_data.qualification=='B.Tech/B.E.'
+                        %}selected{% endif %}>B.Tech/B.E.</option>
+                      <option value="M.Tech/M.E." {% if form_data and form_data.qualification=='M.Tech/M.E.'
+                        %}selected{% endif %}>M.Tech/M.E.</option>
+                      <option value="BCA" {% if form_data and form_data.qualification=='BCA' %}selected{% endif %}>BCA
+                      </option>
+                      <option value="MCA" {% if form_data and form_data.qualification=='MCA' %}selected{% endif %}>MCA
+                      </option>
+                      <option value="B.Sc. Computer Science" {% if form_data and
+                        form_data.qualification=='B.Sc. Computer Science' %}selected{% endif %}>B.Sc. Computer Science
+                      </option>
+                      <option value="M.Sc. Computer Science" {% if form_data and
+                        form_data.qualification=='M.Sc. Computer Science' %}selected{% endif %}>M.Sc. Computer Science
+                      </option>
                     </select>
                   </div>
 
                   <!-- Input -->
                   <div class="form-group col-lg-12 col-md-12">
                     <label>Application Deadline Date <span class="required">*</span></label>
-                    <input type="text" name="deadline" id="deadline-picker" placeholder="Select Deadline" readonly required value="{{ form_data.deadline if form_data else '' }}" />
+                    <input type="text" name="deadline" id="deadline-picker" placeholder="Select Deadline" readonly
+                      required value="{{ form_data.deadline if form_data else '' }}" />
                   </div>
 
-                  <link
-                    rel="stylesheet"
-                    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-                  />
+                  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
                   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
                   <script>
                     document.addEventListener("DOMContentLoaded", function () {
@@ -241,30 +318,30 @@
 <!-- End Dashboard -->
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('jobPostForm');
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('jobPostForm');
 
-  form.onsubmit = function(e) {
-    e.preventDefault();
-    Swal.fire({
-      title: 'Confirm Job Posting',
-      text: 'Are you sure you want to post this job? Please review all details carefully before confirming.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Post Job',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true,
-      customClass: {
-        confirmButton: 'theme-btn btn-style-one',
-        cancelButton: 'theme-btn btn-style-two'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        form.submit();
-      }
-    });
-  };
-});
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Confirm Job Posting',
+        text: 'Are you sure you want to post this job? Please review all details carefully before confirming.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Post Job',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        customClass: {
+          confirmButton: 'theme-btn btn-style-one',
+          cancelButton: 'theme-btn btn-style-two'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    };
+  });
 </script>
 
 {% endblock %}

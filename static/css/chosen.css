@@ -305,20 +305,20 @@
     right: 7px;
     display: block
 }
-
-.chosen-container-multi .chosen-choices li.search-choice .search-choice-close:before {
-    content: "\f00d";
-    font-family: fontawesome;
+.chosen-container-multi .chosen-choices li.search-choice .search-choice-close::before {
+    font-family: "Font Awesome 6 Free"; /* Adjust based on your version */
+    content: "ⓧ"; /* Unicode for fa-times (or use \f2d3 for fa-rectangle-xmark) */
+    font-weight: 900; /* Required for solid icons */
     font-size: 13px;
-    top: 1px;
+    color: #fff;
     position: relative;
+    top: 1px;
+    display: inline-block;
     width: 11px;
     height: 5px;
-    display: inline-block;
-    color: #fff;
     float: right;
-    font-weight: 400
 }
+
 
 .chosen-container-multi .chosen-choices li.search-choice-disabled {
     padding-right: 5px;

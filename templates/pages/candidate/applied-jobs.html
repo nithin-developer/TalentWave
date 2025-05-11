@@ -1,0 +1,212 @@
+{% extends 'base/c_layout.html' %} {% block title %} Applied Jobs {% endblock %}
+{% block content %}
+
+<!-- Dashboard -->
+<section class="user-dashboard">
+  <div class="dashboard-outer">
+    <div class="upper-title-box">
+      <h3>Applied Jobs</h3>
+      <div class="text">Ready to jump back in?</div>
+    </div>
+
+    <!-- Alerts Section -->
+    {% if alerts %}
+    <div class="auto-container mb-4" id="alert-container">
+      <div
+        class="alert alert-{{ alerts[0] }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ alerts[1] }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const alertContainer = document.getElementById("alert-container");
+
+        if (alertContainer) {
+          const alertType = "{{ alerts[0] }}";
+          const alertMessage = "{{ alerts[1] }}";
+
+          // Hide the Bootstrap alert
+          alertContainer.style.display = "none";
+
+          // Map Bootstrap alert types to SweetAlert icons
+          const iconMap = {
+            success: "success",
+            warning: "warning",
+            danger: "error",
+            info: "info",
+          };
+
+          const icon = iconMap[alertType] || "info";
+
+          // Show SweetAlert
+          Swal.fire({
+            icon: icon,
+            title: alertType.charAt(0).toUpperCase() + alertType.slice(1),
+            text: alertMessage,
+            confirmButtonText: "OK",
+          });
+        }
+      });
+    </script>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-lg-12">
+        <!-- Ls widget -->
+        <div class="ls-widget">
+          <div class="tabs-box">
+            <div class="widget-title">
+              <h4>My Applied Jobs</h4>
+
+              <div class="chosen-outer">
+                <!--Tabs Box-->
+                <select class="chosen-select">
+                  <option>Last 6 Months</option>
+                  <option>Last 12 Months</option>
+                  <option>Last 16 Months</option>
+                  <option>Last 24 Months</option>
+                  <option>Last 5 year</option>
+                </select>
+              </div>
+            </div>
+
+            {% if applied_jobs|length == 0 %}
+            <div class="row mt-0">
+                <div class="col-12 text-center py-5">
+                  <div class="">
+                    <img width="250px" height="250px" src="../../../../../static/images/not-found.jpg" alt="" srcset="">
+                    <h4 class="mb-3 mt-4">No jobs found</h4>
+                    <p>No jobs applications are found at this time. <a
+                        href="{{ url_for('candidate_jobs.available_jobs') }}">view all jobs</a>.</p>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+
+            <div class="widget-content">
+              <div class="table-outer">
+                <table class="default-table manage-job-table">
+                  <thead>
+                    <tr>
+                      <th>Job Title</th>
+                      <th>Date Applied</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {% for job in applied_jobs %}
+                    <tr>
+                      <td>
+                        <!-- Job Block -->
+                        <div class="job-block">
+                          <div class="inner-box">
+                            <div class="content">
+                              <span class="company-logo"
+                                ><img
+                                  src="../../../../../{{ job.company_logo }}"
+                                  alt=""
+                                  class="rounded-circle"
+                              /></span>
+                              <h4>
+                                <a
+                                  href="/candidate/job-details/{{ job.job_id }}"
+                                  >{{ job.title }}</a
+                                >
+                              </h4>
+                              <ul class="job-info">
+                                <li>
+                                  <span class="icon flaticon-floor"></span>
+                                  {{ job.company_name }}
+                                </li>
+                                <li>
+                                  <span
+                                    class="icon flaticon-map-locator"
+                                  ></span>
+                                  {{ job.city | title }}, {{ job.country | title
+                                  }}
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ job.applied_date | format_datetime }}</td>
+                      <td
+                        class="status {% if job.status == 'pending' %}text-warning{% endif %} {% if job.status == 'approved' %}text-success{% endif %} {% if job.status == 'rejected' %}text-danger{% endif %}"
+                      >
+                        {{ job.status|title }}
+                      </td>
+                      <td>
+                        <div class="option-box">
+                          <form
+                            action="{{ url_for('candidate_jobs.delete_applied_job', application_id=job.application_id) }}"
+                            method="post"
+                            id="deleteApplicationForm"
+                          >
+                            <ul class="option-list">
+                              <li>
+                                <button
+                                  type="submit"
+                                  data-text="Delete Aplication"
+                                >
+                                  <span class="la la-trash"></span>
+                                </button>
+                              </li>
+                            </ul>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Dashboard -->
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("deleteApplicationForm");
+
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      Swal.fire({
+        title: "Confirm Your Job Application Deletion",
+        text: "Are you sure you want to delete this job application?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Delete Application",
+        cancelButtonText: "Cancel",
+        reverseButtons: true,
+        customClass: {
+          confirmButton: "theme-btn btn-style-one",
+          cancelButton: "theme-btn btn-style-two",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    };
+  });
+</script>
+
+{% endblock %}

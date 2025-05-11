@@ -29,7 +29,7 @@ def post_new_job():
             # Get form data
             title = request.form.get('job_title')
             description = request.form.get('job_description')
-            specialisms = ','.join(request.form.getlist('specialisms')) if 'specialisms' in request.form else ''
+            specialisms = ','.join(request.form.getlist('specialisms[]')) if 'specialisms[]' in request.form else ''
             job_type = request.form.get('job_type')
             salary = request.form.get('salary')
             career_level = request.form.get('career_level')
@@ -38,7 +38,7 @@ def post_new_job():
             industry = request.form.get('industry')
             qualification = request.form.get('qualification')
             deadline = request.form.get('deadline')
-            
+            print(description)
             # Basic validation
             if not all([title, description, job_type, salary, deadline]):
                 flash('Please fill all the required fields', 'error')

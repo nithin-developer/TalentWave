@@ -1,8 +1,57 @@
-{% extends 'base/no_sidebar_layout.html' %} {% block title %}Job Details{%
-endblock %} {% block content %}
+{% extends 'base/no_sidebar_layout.html' %} {% block title %}{{
+job_details_data.title }} - Job Details{% endblock %} {% block content %}
 
 <!-- Job Detail Section -->
 <section class="job-detail-section at-jsv7">
+  <!-- Alerts Section -->
+  {% if alerts %}
+  <div class="auto-container mb-4" id="alert-container">
+    <div
+      class="alert alert-{{ alerts[0] }} alert-dismissible fade show"
+      role="alert"
+    >
+      {{ alerts[1] }}
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const alertContainer = document.getElementById("alert-container");
+
+      if (alertContainer) {
+        const alertType = "{{ alerts[0] }}";
+        const alertMessage = "{{ alerts[1] }}";
+
+        // Hide the Bootstrap alert
+        alertContainer.style.display = "none";
+
+        // Map Bootstrap alert types to SweetAlert icons
+        const iconMap = {
+          success: "success",
+          warning: "warning",
+          danger: "error",
+          info: "info",
+        };
+
+        const icon = iconMap[alertType] || "info";
+
+        // Show SweetAlert
+        Swal.fire({
+          icon: icon,
+          title: alertType.charAt(0).toUpperCase() + alertType.slice(1),
+          text: alertMessage,
+          confirmButtonText: "OK",
+        });
+      }
+    });
+  </script>
+  {% endif %}
+
   <!-- Upper Box -->
   <div class="upper-box">
     <div class="auto-container">
@@ -11,34 +60,39 @@ endblock %} {% block content %}
         <div class="inner-box row">
           <div class="col-lg-8">
             <div class="position-relative">
-              <div class="tags">
-                <a class="flaticon-bookmark" href="#"></a>
-              </div>
               <div class="content ps-0">
                 <div class="d-sm-flex align-items-center">
                   <figure class="image mb-sm-0">
                     <img
                       class="rounded-circle w60"
-                      src="../../../../../static/images/resource/company-logo/3-1.png"
-                      alt=""
+                      src="../../../../../{{ job_details_data.company_logo }}"
+                      alt="{{ job_details_data.company_name }}"
                     />
                   </figure>
                   <div class="ms-0 ms-sm-3">
                     <h4 class="fz20 mb-0">
-                      <a href="#">Software Engineer (Android), Libraries</a>
+                      <a href="#">{{ job_details_data.title }}</a>
                     </h4>
                     <p>
-                      by <span class="fw500 text">CreativeLayers</span> in
-                      Design & Creative
+                      by
+                      <span class="fw500 text"
+                        >{{ job_details_data.company_name }}</span
+                      >
+                      in {{ job_details_data.industry }}
                     </p>
                   </div>
                 </div>
                 <ul class="job-other-info d-sm-flex ms-0 at-jsv7 mt30">
-                  <li class="time">Full Time</li>
-                  <li class="time2">London, UK</li>
-                  <li class="time2">11 hours ago</li>
-                  <li class="time2">450 - $900/month</li>
-                  <li class="time2">847 (views)</li>
+                  <li class="time">{{ job_details_data.job_type }}</li>
+                  <li class="time2">
+                    {{ job_details_data.city|title }}, {{
+                    job_details_data.country|title }}
+                  </li>
+                  <li class="time2">
+                    Posted {{ job_details_data.created_at.strftime('%b %d, %Y')
+                    }}
+                  </li>
+                  <li class="time2">{{ job_details_data.salary }}</li>
                 </ul>
               </div>
             </div>
@@ -47,13 +101,68 @@ endblock %} {% block content %}
             <div class="text-lg-end">
               <div class="titles mb-3 mb-sm-0">
                 <h4 class="fz20 fw500 mb-1">Application Ends</h4>
-                <p class="text mb15">May 18, 2026</p>
+                <p class="text mb15">
+                  {{ job_details_data.deadline.strftime('%b %d, %Y') }}
+                </p>
               </div>
-              <div class="btn-box justify-content-lg-end mb-0">
-                <a href="#" class="theme-btn btn-style-one w-100"
-                  >Apply For Job <i class="fal fa-long-arrow-right ms-3"></i
-                ></a>
+              {% if already_applied %}
+              <div class="btn-box mb-0">
+                <button
+                  type="submit"
+                  class="theme-btn btn-style-four w-100"
+                  disabled
+                  style="
+                    cursor: not-allowed;
+                    color: #ffffff;
+                    background-color: #34a853;
+                  "
+                >
+                  Already Applied <i class="fal fa-check ms-3"></i>
+                </button>
               </div>
+              {% elif session.get('role') == 'employer' %}
+              <div class="btn-box mb-0">
+                <button
+                  type="submit"
+                  class="theme-btn btn-style-eight w-100"
+                  disabled
+                  style="
+                    cursor: not-allowed;
+                    color: #ffffff;
+                    background-color: #d93025;
+                  "
+                >
+                  Only Candidates Can Apply <i class="fal fa-info-circle ms-3"></i>
+                </button>
+              </div>
+              {% elif not is_completed %}
+              <div class="btn-box mb-0">
+                <button
+                  type="submit"
+                  class="theme-btn btn-style-eight w-100"
+                  disabled
+                  style="
+                    cursor: not-allowed;
+                    color: #ffffff;
+                    background-color: #d93025;
+                  "
+                >
+                  Complete Your Profile to Apply <i class="fal fa-info-circle ms-3"></i>
+                </button>
+              </div>
+              {% else %}
+              <form
+                action="{{ url_for('candidate_jobs.apply_job', job_id=job_details_data.job_id) }}"
+                method="post"
+                id="jobApplyForm"
+              >
+                <div class="btn-box justify-content-lg-end mb-0">
+                  <button type="submit" class="theme-btn btn-style-one w-100">
+                    Apply For Job <i class="fal fa-long-arrow-right ms-3"></i>
+                  </button>
+                </div>
+              </form>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -68,69 +177,23 @@ endblock %} {% block content %}
           <div class="job-detail">
             <h4 class="fz30 fw500">Description</h4>
             <p class="text">
-              As a Product Designer, you will work within a Product Delivery
-              Team fused with UX, engineering, product and data talent. You will
-              help the team design beautiful interfaces that solve business
-              challenges for our clients. We work with a number of Tier 1 banks
-              on building web-based applications for AML, KYC and Sanctions List
-              management workflows. This role is ideal if you are looking to
-              segue your career into the FinTech or Big Data arenas.
+              <!-- Add class="list-style-four" to ul to this paragraph -->
+              {{ job_details_data.description.replace("<ul", '<ul
+              class="list-style-two"')|safe }}
             </p>
-            <h4>Key Responsibilities</h4>
-            <ul class="list-style-three">
+
+            {% if job_details_data.specialisms %}
+            <h4>Required Skills</h4>
+            <ul class="list-style-four">
+              {% for responsibility in job_details_data.specialisms.split(',')
+              %} {% if responsibility|trim %}
               <li class="dark-color">
-                Be involved in every step of the product design cycle from
-                discovery to developer handoff and user acceptance testing.
+                {{ responsibility if responsibility != 'AI' else 'Artificial
+                Intelligence' }}
               </li>
-              <li class="dark-color">
-                Work with BAs, product managers and tech teams to lead the
-                Product Design
-              </li>
-              <li class="dark-color">
-                Maintain quality of the design process and ensure that when
-                designs are translated into code they accurately reflect the
-                design specifications.
-              </li>
-              <li class="dark-color">
-                Accurately estimate design tickets during planning sessions.
-              </li>
-              <li class="dark-color">
-                Contribute to sketching sessions involving non-designersCreate,
-                iterate and maintain UI deliverables including sketch files,
-                style guides, high fidelity prototypes, micro interaction
-                specifications and pattern libraries.
-              </li>
-              <li class="dark-color">
-                Ensure design choices are data led by identifying assumptions to
-                test each sprint, and work with the analysts in your team to
-                plan moderated usability test sessions.
-              </li>
-              <li class="dark-color">
-                Design pixel perfect responsive UI’s and understand that
-                adopting common interface patterns is better for UX than
-                reinventing the wheel
-              </li>
-              <li class="dark-color">
-                Present your work to the wider business at Show & Tell sessions.
-              </li>
+              {% endif %} {% endfor %}
             </ul>
-            <h4>Skill & Experience</h4>
-            <ul class="list-style-three">
-              <li class="dark-color">
-                You have at least 3 years’ experience working as a Product
-                Designer.
-              </li>
-              <li class="dark-color">
-                You have experience using Sketch and InVision or Framer X
-              </li>
-              <li class="dark-color">
-                You have some previous experience working in an agile
-                environment – Think two-week sprints.
-              </li>
-              <li class="dark-color">
-                You are familiar using Jira and Confluence in your workflow
-              </li>
-            </ul>
+            {% endif %}
           </div>
           <hr class="opacity-100" />
 
@@ -140,11 +203,8 @@ endblock %} {% block content %}
             <ul
               class="job-other-info at-jsv7 bottom d-sm-flex align-items-center mt20"
             >
-              <li class="time bg-gray">Marketing Jobs</li>
-              <li class="time2">Designer</li>
-              <li class="time2">Engimeering</li>
-              <li class="time2">Developer</li>
-              <li class="time2">Security Jobs</li>
+              <li class="time2">{{ job_details_data.industry }} Industry</li>
+              <li class="time2">{{ job_details_data.career_level }} Level</li>
             </ul>
           </div>
 
@@ -153,13 +213,68 @@ endblock %} {% block content %}
             <div class="d-sm-flex justify-content-sm-between">
               <div class="titles mb-3 mb-sm-0">
                 <h4 class="fz20 fw500">Application ends</h4>
-                <p class="text">May 18, 2026</p>
+                <p class="text">
+                  {{ job_details_data.deadline.strftime('%b %d, %Y') }}
+                </p>
               </div>
+              {% if already_applied %}
               <div class="btn-box mb-0">
-                <a href="#" class="theme-btn btn-style-one"
-                  >Apply For Job <i class="fal fa-long-arrow-right ms-3"></i
-                ></a>
+                <button
+                  type="submit"
+                  class="theme-btn btn-style-four w-100"
+                  disabled
+                  style="
+                    cursor: not-allowed;
+                    color: #ffffff;
+                    background-color: #34a853;
+                  "
+                >
+                  Already Applied <i class="fal fa-check ms-3"></i>
+                </button>
               </div>
+              {% elif session.get('role') == 'employer' %}
+              <div class="btn-box mb-0">
+                <button
+                  type="submit"
+                  class="theme-btn btn-style-eight w-100"
+                  disabled
+                  style="
+                    cursor: not-allowed;
+                    color: #ffffff;
+                    background-color: #d93025;
+                  "
+                >
+                  Only Candidates Can Apply <i class="fal fa-info-circle ms-3"></i>
+                </button>
+              </div>
+              {% elif not is_completed %}
+              <div class="btn-box mb-0">
+                <button
+                  type="submit"
+                  class="theme-btn btn-style-eight w-100"
+                  disabled
+                  style="
+                    cursor: not-allowed;
+                    color: #ffffff;
+                    background-color: #d93025;
+                  "
+                >
+                  Complete Your Profile to Apply <i class="fal fa-info-circle ms-3"></i>
+                </button>
+              </div>
+              {% else %}
+              <form
+                action="{{ url_for('candidate_jobs.apply_job', job_id=job_details_data.job_id) }}"
+                method="post"
+                id="jobApplyForm"
+              >
+                <div class="btn-box justify-content-lg-end mb-0">
+                  <button type="submit" class="theme-btn btn-style-one w-100">
+                    Apply For Job <i class="fal fa-long-arrow-right ms-3"></i>
+                  </button>
+                </div>
+              </form>
+              {% endif %}
             </div>
           </div>
 
@@ -167,15 +282,16 @@ endblock %} {% block content %}
           <div class="related-jobs">
             <div class="title-box">
               <h3>Similar jobs</h3>
-              <div class="text">2020 jobs live - 293 added today.</div>
+              <div class="text">
+                Similar jobs in {{ job_details_data.industry }}
+              </div>
             </div>
 
+            {% if similar_jobs %} {% for job in similar_jobs %}
             <!-- Job Block -->
             <div class="job-block at-jsv6">
               <div class="inner-box">
                 <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
                   <a class="flaticon-bookmark" href="#"></a>
                 </div>
                 <div class="content ps-0">
@@ -183,103 +299,39 @@ endblock %} {% block content %}
                     <figure class="image mb-sm-0">
                       <img
                         class="rounded-circle w60"
-                        src="../../../../../static/images/resource/company-logo/3-1.png"
-                        alt=""
+                        src="../../../../../{{ job.company_logo }}"
+                        alt="{{ job.company_name }}"
                       />
                     </figure>
                     <div class="ms-0 ms-sm-3">
                       <h4 class="fz20 mb-0">
-                        <a href="#">Software Engineer (Android), Libraries</a>
+                        <a
+                          href="{{ url_for('candidate_jobs.job_details', job_id=job.job_id) }}"
+                          >{{ job.title }}</a
+                        >
                       </h4>
                       <p>
-                        by <span class="fw500 text">CreativeLayers</span> in
-                        Design & Creative
+                        by
+                        <span class="fw500 text">{{ job.company_name }}</span>
+                        in {{ job.industry }}
                       </p>
                     </div>
                   </div>
                   <ul class="job-other-info d-sm-flex ms-0 at-jsv6 mt30">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">11 hours ago</li>
-                    <li class="time2">450 - $900/month</li>
+                    <li class="time">{{ job.job_type }}</li>
+                    <li class="time2">
+                      {{ job.city|title }}, {{ job.country|title }}
+                    </li>
+                    <li class="time2">{{ job.salary }}</li>
                   </ul>
                 </div>
               </div>
             </div>
-
-            <!-- Job Block -->
-            <div class="job-block at-jsv6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <div class="d-sm-flex align-items-center">
-                    <figure class="image mb-sm-0">
-                      <img
-                        class="rounded-circle w60"
-                        src="../../../../../static/images/resource/company-logo/3-2.png"
-                        alt=""
-                      />
-                    </figure>
-                    <div class="ms-0 ms-sm-3">
-                      <h4 class="fz20 mb-0">
-                        <a href="#">Software Engineer (Android), Libraries</a>
-                      </h4>
-                      <p>
-                        by <span class="fw500 text">CreativeLayers</span> in
-                        Design & Creative
-                      </p>
-                    </div>
-                  </div>
-                  <ul class="job-other-info d-sm-flex ms-0 at-jsv6 mt30">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">11 hours ago</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                </div>
-              </div>
+            {% endfor %} {% else %}
+            <div class="text-center py-4">
+              <p>No similar jobs found at this time.</p>
             </div>
-
-            <!-- Job Block -->
-            <div class="job-block at-jsv6">
-              <div class="inner-box">
-                <div class="tags d-flex align-items-center">
-                  <a class="far fa-crown" href="#"></a>
-                  <a class="far fa-bolt" href="#"></a>
-                  <a class="flaticon-bookmark" href="#"></a>
-                </div>
-                <div class="content ps-0">
-                  <div class="d-sm-flex align-items-center">
-                    <figure class="image mb-sm-0">
-                      <img
-                        class="rounded-circle w60"
-                        src="../../../../../static/images/resource/company-logo/3-4.png"
-                        alt=""
-                      />
-                    </figure>
-                    <div class="ms-0 ms-sm-3">
-                      <h4 class="fz20 mb-0">
-                        <a href="#">Software Engineer (Android), Libraries</a>
-                      </h4>
-                      <p>
-                        by <span class="fw500 text">CreativeLayers</span> in
-                        Design & Creative
-                      </p>
-                    </div>
-                  </div>
-                  <ul class="job-other-info d-sm-flex ms-0 at-jsv6 mt30">
-                    <li class="time">Full Time</li>
-                    <li class="time2">London, UK</li>
-                    <li class="time2">11 hours ago</li>
-                    <li class="time2">450 - $900/month</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            {% endif %}
           </div>
         </div>
 
@@ -293,62 +345,71 @@ endblock %} {% block content %}
                     <i class="icon flaticon-title"></i>
                     <div class="ml15">
                       <h5>Qualification</h5>
-                      <span>Bachelor Degree</span>
+                      <span>{{ job_details_data.qualification }}</span>
                     </div>
                   </li>
                   <li>
                     <i class="icon fal fa-circle-dollar"></i>
                     <div class="ml15">
                       <h5>Offered Salary</h5>
-                      <span>$150 - $180 / week</span>
+                      <span>{{ job_details_data.salary }}</span>
                     </div>
                   </li>
                   <li>
                     <i class="icon flaticon-map-locator"></i>
                     <div class="ml15">
-                      <h5>Hiring location</h5>
-                      <span>London, UK</span>
+                      <h5>Location</h5>
+                      <span
+                        >{{ job_details_data.city|title }}, {{
+                        job_details_data.country|title }}</span
+                      >
                     </div>
                   </li>
                   <li>
                     <i class="icon icon-calendar"></i>
                     <div class="ml15">
                       <h5>Date Posted</h5>
-                      <span>Posted 1 hours ago</span>
+                      <span
+                        >Posted {{ job_details_data.created_at.strftime('%b %d,
+                        %Y') }}</span
+                      >
                     </div>
                   </li>
                   <li>
                     <i class="icon flaticon-profit"></i>
                     <div class="ml15">
                       <h5>Career Level</h5>
-                      <span>Officer</span>
+                      <span>{{ job_details_data.career_level }}</span>
                     </div>
                   </li>
                   <li>
                     <i class="icon far fa-mars"></i>
                     <div class="ml15">
                       <h5>Gender</h5>
-                      <span>Both</span>
+                      <span>{{ job_details_data.gender }}</span>
                     </div>
                   </li>
                   <li>
                     <i class="icon flaticon-man"></i>
                     <div class="ml15">
                       <h5>Experience</h5>
-                      <span>4-8 Year</span>
+                      <span>{{ job_details_data.experience }}</span>
                     </div>
                   </li>
                   <li>
                     <i class="icon fal fa-hourglass-end"></i>
                     <div class="ml15">
-                      <h5>Expiration date</h5>
-                      <span>April 06, 2021</span>
+                      <h5>Deadline</h5>
+                      <span
+                        >{{ job_details_data.deadline.strftime('%b %d, %Y')
+                        }}</span
+                      >
                     </div>
                   </li>
                 </ul>
               </div>
-              <div class="d-grid mb15">
-                <a href="#" class="ud-btn-transparent">Send Message</a>
+              <!-- <div class="d-grid mb15">
+                <a href="mailto:{{ job_details_data.company_email }}" class="ud-btn-transparent">Send Message</a>
               </div>
               <div class="text-center">
                 <div class="social-link-style1">
@@ -357,63 +418,77 @@ endblock %} {% block content %}
                   <a class="me-3" href="#"><i class="fab fa-instagram"></i></a>
                   <a href="#"><i class="fab fa-linkedin-in"></i></a>
                 </div>
-              </div>
+              </div> -->
             </div>
             <div class="sidebar-widget company-widget at-jsv6">
               <div class="widget-content">
                 <div class="company-title">
                   <div class="company-logo">
-                    <img src="../../../../../static/images/resource/company-7.png" alt="" />
+                    <img
+                      src="../../../../../{{ job_details_data.company_logo }}"
+                      class="rounded-circle"
+                      alt="{{ job_details_data.company_name }}"
+                    />
                   </div>
-                  <h5 class="company-name">InVision</h5>
+                  <h5 class="company-name">
+                    {{ job_details_data.company_name }}
+                  </h5>
                   <a href="#" class="profile-link">View company profile</a>
                 </div>
                 <ul class="company-info">
-                  <li>Primary industry: <span>Software</span></li>
-                  <li>Company size: <span>501-1,000</span></li>
-                  <li>Founded in: <span>2011</span></li>
-                  <li>Phone: <span>123 456 7890</span></li>
-                  <li>Email: <span>info@joio.com</span></li>
-                  <li>Location: <span>London, UK</span></li>
+                  <li>
+                    Primary industry:
+                    <span>{{ job_details_data.industry }}</span>
+                  </li>
+                  <li>
+                    Company size: <span>{{ job_details_data.team_size }}</span>
+                  </li>
+                  <li>
+                    Founded in: <span>{{ job_details_data.est_since }}</span>
+                  </li>
+                  <li>
+                    Phone: <span>{{ job_details_data.company_phone }}</span>
+                  </li>
+                  <li>
+                    Email: <span>{{ job_details_data.company_email }}</span>
+                  </li>
+                  <li>
+                    Location:
+                    <span
+                      >{{ job_details_data.city|title }}, {{
+                      job_details_data.country|title }}</span
+                    >
+                  </li>
                 </ul>
                 <div class="btn-box">
-                  <a href="#" class="theme-btn btn-style-three"
-                    >www.invisionapp.com</a
+                  <a
+                    href="{{ job_details_data.company_website }}"
+                    class="theme-btn btn-style-three"
+                    >{{ job_details_data.company_website }}</a
                   >
                 </div>
-                <div class="d-grid mb15 mt20">
-                  <a href="#" class="ud-btn-transparent">Send Message</a>
+                <!-- <div class="d-grid mb15 mt20">
+                  <a href="mailto:{{ job_details_data.company_email }}" class="ud-btn-transparent">Send Message</a>
                 </div>
                 <div class="text-center">
                   <div class="social-link-style1">
-                    <a class="me-3" href="#"
-                      ><i class="fab fa-facebook-f"></i
-                    ></a>
+                    <a class="me-3" href="#"><i class="fab fa-facebook-f"></i></a>
                     <a class="me-3" href="#"><i class="fab fa-twitter"></i></a>
-                    <a class="me-3" href="#"
-                      ><i class="fab fa-instagram"></i
-                    ></a>
+                    <a class="me-3" href="#"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-linkedin-in"></i></a>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
             <div class="p-0">
-              <!-- Job Skills -->
+              <!-- Location Map -->
               <h4 class="widget-title fz18 mb25 fw500">Location</h4>
               <div class="widget-content">
                 <div class="map-outer">
-                  <div
-                    class="map-canvas at-sv5"
-                    data-zoom="12"
-                    data-lat="-37.817085"
-                    data-lng="144.955631"
-                    data-type="roadmap"
-                    data-hue="#ffc400"
-                    data-title="Envato"
-                    data-icon-path="../../../../../static/images/icons/contact-map-marker.png"
-                    data-content="Melbourne VIC 3000, Australia<br><a href='mailto:info@youremail.com'>info@youremail.com</a>"
-                  ></div>
+                  {% if job_details_data.embed_code %} {{
+                  job_details_data.embed_code|safe }} {% else %}
+                  <div class="map-canvas at-sv5"></div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -424,5 +499,32 @@ endblock %} {% block content %}
   </div>
 </section>
 <!-- End Job Detail Section -->
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("jobApplyForm");
+
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      Swal.fire({
+        title: "Confirm Your Job Application",
+        text: "Are you sure you want to apply for this job?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Apply Job",
+        cancelButtonText: "Cancel",
+        reverseButtons: true,
+        customClass: {
+          confirmButton: "theme-btn btn-style-one",
+          cancelButton: "theme-btn btn-style-two",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    };
+  });
+</script>
 
 {% endblock %}
