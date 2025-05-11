@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, flash, get_flashed_messages, redirect, url_for, session
 from database import Database
+from ..auth import candidate_required
 import datetime
 jobs_bp = Blueprint('candidate_jobs', __name__, url_prefix='/candidate')
 
@@ -98,6 +99,7 @@ def job_details(job_id):
 
 
 @jobs_bp.route('/apply-job/<job_id>', methods=['POST'])
+@candidate_required
 def apply_job(job_id):
     # Check if user is logged in
     if 'user_id' not in session:
@@ -125,6 +127,7 @@ def apply_job(job_id):
 
 
 @jobs_bp.route('/applied-jobs', methods=['GET'])
+@candidate_required
 def applied_jobs():
     alerts = get_flashed_messages(with_categories=True)
     if len(alerts) > 0:
@@ -137,6 +140,7 @@ def applied_jobs():
     return render_template('pages/candidate/applied-jobs.html', no_applied_jobs=no_applied_jobs, applied_jobs=applied_jobs, alerts=alerts)
 
 @jobs_bp.route('/delete-application/<application_id>', methods=['POST'])
+@candidate_required
 def delete_applied_job(application_id):
     user_id = session.get('user_id')
     success = Database.delete_job_application(application_id, user_id)

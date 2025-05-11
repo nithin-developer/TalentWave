@@ -1,8 +1,5 @@
-<!-- Preloader -->
-<div class="preloader"></div>
-
 <!-- Main Header-->
-<header class="main-header header-style-four -type-16">
+<header class="main-header header-shaddow">
   <div class="container-fluid">
     <!-- Main box -->
     <div class="main-box">
@@ -11,15 +8,12 @@
         <div class="logo-box">
           <div class="logo">
             <a href="/"
-              ><img
-                src="../../../../../static/images/logo-2.svg"
-                alt=""
-                title=""
+              ><img src="../../../../../static/images/logo.svg" alt="" title=""
             /></a>
           </div>
         </div>
 
-        <nav class="nav main-menu mx-auto">
+        <nav class="nav main-menu">
           <ul class="navigation" id="navbar">
             <li class="{% if request.path == '/' %}current{% endif %}">
               <a href="/">
@@ -45,7 +39,6 @@
               </a>
               </li>
 
-
             <!-- Only for Mobile View -->
             <li class="mm-add-listing">
               <span>
@@ -58,8 +51,8 @@
                     >329 Queensberry Street, North Melbourne VIC <br />3051,
                     Australia.</span
                   >
-                  <a href="mailto:support@TalentWave.com" class="email"
-                    >support@TalentWave.com</a
+                  <a href="mailto:support@superio.com" class="email"
+                    >support@superio.com</a
                   >
                 </span>
                 <span class="social-links">
@@ -76,30 +69,25 @@
       </div>
 
       <div class="outer-box">
-        <!-- Add Listing -->
-        <!-- <a
-          href="candidate-dashboard-cv-manager.html"
-          class="upload-cv text-white"
-        >
-          Upload your CV</a
-        > -->
         <!-- Login/Register -->
         <div class="btn-box">
-          <!-- <a href="login-popup.html" class="theme-btn btn-style-nine call-modal"
+          <!-- <a
+            href="login-popup.html"
+            class="theme-btn btn-style-three call-modal"
             >Login / Register</a
           > -->
           {% if session.get('role') == 'candidate' %}
-          <a href="/candidate/dashboard" class="theme-btn btn-style-five">
+          <a href="/candidate/dashboard" class="theme-btn btn-style-one">
             Continue as Candidate
             <i class="fas fa-arrow-right ml10"></i
           ></a>
           {% elif session.get('role') == 'employer' %}
-          <a href="/employer/dashboard" class="theme-btn btn-style-five">
+          <a href="/employer/dashboard" class="theme-btn btn-style-one">
             Continue as Employer
             <i class="fas fa-arrow-right ml10"></i
           ></a>
          {% else %}
-          <a href="/auth/login" class="theme-btn btn-style-five">
+          <a href="/auth/login" class="theme-btn btn-style-one">
             Login / Register
             <i class="fas fa-arrow-right ml10"></i
           ></a>
@@ -109,30 +97,10 @@
     </div>
   </div>
 
-  <!-- Sticky Header  -->
-  <div class="sticky-header">
-    <div class="auto-container">
-      <div class="main-box">
-        <div class="logo-box">
-          <div class="sticky-logo">
-            <a href="/"
-              ><img src="../../../../../static/images/logo.svg" alt="" title=""
-            /></a>
-          </div>
-        </div>
-
-        <!--Keep This Empty / Menu will come through Javascript-->
-      </div>
-    </div>
-  </div>
-  <!-- End Sticky Menu -->
-
   <!-- Mobile Header -->
   <div class="mobile-header">
     <div class="logo">
-      <a href="/"
-        ><img src="../../../../../static/images/logo.svg" alt="" title=""
-      /></a>
+      <a href="/"><img src="../../../../../static/images/logo.svg" alt="" title="" /></a>
     </div>
 
     <!--Nav Box-->
@@ -140,7 +108,9 @@
       <div class="outer-box">
         <!-- Login/Register -->
         <div class="login-box">
-          <a href="/auth/login"><span class="icon-user"></span></a>
+          <a href="/auth/login" class="call-modal"
+            ><span class="icon-user"></span
+          ></a>
         </div>
 
         <a href="#nav-mobile" class="mobile-nav-toggler navbar-trigger"

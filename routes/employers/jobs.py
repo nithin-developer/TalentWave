@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, flash, get_flashed_messages, redirect, url_for, session, jsonify
 from database import Database
-import os
-from datetime import datetime
+from ..auth import employer_required
 
 jobs_bp = Blueprint('employer_jobs', __name__, url_prefix='/employer')
 
 @jobs_bp.route('/post-new-job', methods=['GET', 'POST'])
+@employer_required
 def post_new_job():
     alerts = get_flashed_messages(with_categories=True)
     if len(alerts) > 0:
@@ -72,6 +72,7 @@ def get_applicants_count(job_id):
     return Database.get_count_applications_for_job(job_id).get('total_applications', 0)
 
 @jobs_bp.route('/manage-jobs', methods=['GET'])
+@employer_required
 def manage_jobs():
     alerts = get_flashed_messages(with_categories=True)
     if len(alerts) > 0:
@@ -80,6 +81,7 @@ def manage_jobs():
     return render_template('pages/employer/manage-jobs.html', get_applicants_count=get_applicants_count, jobs=jobs, alerts=alerts)
 
 @jobs_bp.route('/delete-job', methods=['POST'])
+@employer_required
 def delete_job():
     job_id = request.args.get('job_id')
     result = Database.delete_job(job_id, session.get('user_id'))

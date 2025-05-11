@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, request, flash, get_flashed_messages, redirect, url_for, session
 from database import Database
+from ..auth import employer_required
 import os
 
 company_bp = Blueprint('company', __name__, url_prefix='/employer')
 
 @company_bp.route('/company-profile', methods=['GET'])
+@employer_required
 def company_profile():
     alerts = get_flashed_messages(with_categories=True)
     if len(alerts) > 0:
@@ -15,6 +17,7 @@ def company_profile():
 
 
 @company_bp.route('/company-profile/update-profile', methods=['POST'])
+@employer_required
 def update_profile():
     connection = None
     cursor = None
