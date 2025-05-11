@@ -1,0 +1,151 @@
+{% extends 'base/c_layout.html' %} {% block title %}Candidate Dashboard{%
+endblock %} {% block content %}
+<!-- Dashboard -->
+<section class="user-dashboard">
+  <div class="dashboard-outer">
+    <div class="upper-title-box">
+      <h3>
+        Hello, {{ session.first_name if session.first_name else 'Candidate' }}!
+      </h3>
+      <div class="text">Ready to jump back in?</div>
+    </div>
+
+    {% if alerts %}
+    <div class="message-box {{ alerts[0] }}">
+      <p>{{ alerts[1] }}</p>
+      <button class="close-btn"><span class="close_icon"></span></button>
+    </div>
+    {% endif %} {% if not is_profile_completed %}
+    <div class="mb-4">
+      <p class="alert alert-warning">
+        Complete your profile to unlock all features and apply for jobs
+      </p>
+      <a
+        href="{{ url_for('candidate_profile.profile') }}"
+        class="theme-btn btn-style-one mt-2"
+        >Complete Profile</a
+      >
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="ui-item">
+          <div class="left">
+            <i class="icon flaticon-briefcase"></i>
+          </div>
+          <div class="right">
+            <h4>{{ stats.total_applications }}</h4>
+            <p>Applied Jobs</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="ui-item ui-red">
+          <div class="left">
+            <i class="icon la la-file-invoice"></i>
+          </div>
+          <div class="right">
+            <h4>{{ stats.alerts_count }}</h4>
+            <p>Job Alerts</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="ui-item ui-yellow">
+          <div class="left">
+            <i class="icon la la-comment-o"></i>
+          </div>
+          <div class="right">
+            <h4>{{ stats.pending_count }}</h4>
+            <p>Pending Jobs</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="ui-item ui-green">
+          <div class="left">
+            <i class="icon la la-bookmark-o"></i>
+          </div>
+          <div class="right">
+            <h4>{{ stats.shortlisted_count }}</h4>
+            <p>Shortlisted Jobs</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <!-- applicants Widget -->
+        <div class="applicants-widget ls-widget">
+          <div class="widget-title">
+            <h4>Jobs Applied Recently</h4>
+          </div>
+          <div class="widget-content">
+            <div class="row">
+              {% if recent_applications %} {% for app in recent_applications %}
+              <!-- Job Block -->
+              <div class="job-block col-lg-6 col-md-12 col-sm-12">
+                <div class="inner-box">
+                  <div class="content">
+                    <span class="company-logo">
+                      <img
+                        src="../../../../../{{ app.company_logo if app.company_logo else '../static/images/resource/company-logo/1-1.png' }}"
+                        alt="{{ app.company_name }}"
+                        class="rounded-circle"
+                      />
+                    </span>
+                    <h4>
+                      <a
+                        href="{{ url_for('candidate_jobs.job_details', job_id=app.job_id) }}"
+                        >{{ app.job_title }}</a
+                      >
+                    </h4>
+                    <ul class="job-info">
+                      <li>
+                        <span class="icon flaticon-briefcase"></span> {{
+                        app.company_name }}
+                      </li>
+                      <li>
+                        <span class="icon flaticon-map-locator"></span> {{
+                        app.city | title }}, {{ app.country | title }}
+                      </li>
+                      <li>
+                        <span class="icon flaticon-clock-3"></span> {{
+                        app.time_ago }}
+                      </li>
+                    </ul>
+                    <ul class="job-other-info">
+                      <li class="time">{{ app.job_type }}</li>
+                      <li class="required">{{ app.status|title }}</li>
+                    </ul>
+                    <a
+                      href="{{ url_for('candidate_jobs.job_details', job_id=app.job_id) }}"
+                    >
+                      <button class="bookmark-btn">
+                        <span class="flaticon-arrow-pointing-to-right"></span>
+                      </button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {% endfor %} {% else %}
+              <div class="col-lg-12">
+                <div class="alert alert-info">
+                  You haven't applied to any jobs yet.
+                  <a href="{{ url_for('jobs.browse_jobs') }}">Browse jobs</a> to
+                  get started.
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Dashboard -->
+{% endblock %}

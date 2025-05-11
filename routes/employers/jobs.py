@@ -68,13 +68,16 @@ def post_new_job():
     # GET request - display the form
     return render_template('pages/employer/post-job.html', alerts=alerts, no_company_profile=no_company_profile)
 
+def get_applicants_count(job_id):
+    return Database.get_count_applications_for_job(job_id).get('total_applications', 0)
+
 @jobs_bp.route('/manage-jobs', methods=['GET'])
 def manage_jobs():
     alerts = get_flashed_messages(with_categories=True)
     if len(alerts) > 0:
         alerts = alerts[0]
     jobs = Database.get_employer_jobs(session.get('user_id'))
-    return render_template('pages/employer/manage-jobs.html', jobs=jobs, alerts=alerts)
+    return render_template('pages/employer/manage-jobs.html', get_applicants_count=get_applicants_count, jobs=jobs, alerts=alerts)
 
 @jobs_bp.route('/delete-job', methods=['POST'])
 def delete_job():

@@ -49,13 +49,13 @@
                             <h6>{{ job.title }}</h6>
                             <span class="info"><i class="icon flaticon-map-locator"></i> {{ job.company_name }}</span>
                           </td>
-                          <td class="applied"><a href="#">0 Applied</a></td>
+                          <td class="applied"><a href="#">{{ get_applicants_count(job.job_id) }} Applied</a></td>
                           <td>{{ job.created_at.strftime('%B %d, %Y') }} <br>{{ job.deadline.strftime('%B %d, %Y') }}</td>
                           <td class="status">{{ job.status|title }}</td>
                           <td>
                             <div class="option-box">
                               <ul class="option-list">
-                                <li><button data-text="Delete Job" data-job-id="{{ job.id }}" onclick="confirmDelete('{{ job.id }}', '{{ job.title }}')"><span class="la la-trash"></span></button></li>
+                                <li><button data-text="Delete Job" data-job-id="{{ job.job_id }}" onclick="confirmDelete('{{ job.job_id }}', '{{ job.title }}')"><span class="la la-trash"></span></button></li>
                                 <script>
                                 function confirmDelete(jobId, jobTitle) {
                                     Swal.fire({

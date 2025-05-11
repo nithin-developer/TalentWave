@@ -574,14 +574,14 @@ class Database:
             """
             cursor.execute(query, (user_id, job_id))
             result = cursor.fetchone()[0]
-            
+
             return result > 0
         except Error as e:
             print(f"Error checking application status: {e}")
             return False
         finally:
             Database.close_connection(connection, cursor)
-            
+
     @staticmethod
     def submit_job_application(application_id, user_id, job_id):
         """Submit a new job application."""
@@ -602,7 +602,7 @@ class Database:
             """
             cursor.execute(query, (application_id, user_id, job_id))
             connection.commit()
-            
+
             return True
         except Error as e:
             if connection:
@@ -634,11 +634,11 @@ class Database:
             """
             cursor.execute(query, (industry, job_id, limit))
             result = cursor.fetchall()
-            
+
             # Make sure to consume any remaining results
             if cursor.with_rows:
                 cursor.fetchall()
-                
+
             return result
         except Error as e:
             print(f"Error getting similar jobs: {e}")
@@ -742,9 +742,9 @@ class Database:
             Database.close_connection(connection, cursor)
 
     @staticmethod
-    def update_candidate_profile(profile_id, phone, email, 
-                                date_of_birth, gender, resume_path, skills, 
-                                experience, country, city, address, about):
+    def update_candidate_profile(profile_id, phone, email,
+                                 date_of_birth, gender, resume_path, skills,
+                                 experience, country, city, address, about):
         """Update candidate profile."""
         connection = None
         cursor = None
@@ -760,7 +760,7 @@ class Database:
                 experience = %s, country = %s, city = %s, address = %s, about = %s
                 WHERE profile_id = %s"""
             values = (
-                phone, email, date_of_birth, gender, 
+                phone, email, date_of_birth, gender,
                 resume_path, skills, experience, country, city, address, about, profile_id
             )
             cursor.execute(query, values)
@@ -775,9 +775,9 @@ class Database:
             Database.close_connection(connection, cursor)
 
     @staticmethod
-    def insert_candidate_profile(profile_id, user_id, phone, email, 
-                                date_of_birth, gender, resume_path, skills, 
-                                experience, country, city, address, about):
+    def insert_candidate_profile(profile_id, user_id, phone, email,
+                                 date_of_birth, gender, resume_path, skills,
+                                 experience, country, city, address, about):
         """Insert candidate profile."""
         connection = None
         cursor = None
@@ -827,7 +827,7 @@ class Database:
                 first_name = %s, last_name = %s
                 WHERE user_id = %s"""
             values = (first_name, last_name, user_id)
-            
+
             cursor.execute(query, values)
             connection.commit()
             return True
@@ -863,9 +863,193 @@ class Database:
             cursor.execute(query, (user_id,))
             count = cursor.fetchone()[0]
 
-            return count > 0 
+            return count > 0
         except Error as e:
             print(f"Error checking profile completion: {e}")
             return False
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_candidate_dashboard_stats(user_id):
+        """Get statistics for candidate dashboard."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            # Get counts of applications by status
+            query = """
+                SELECT 
+                    COUNT(*) as total_applications,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+                    SUM(CASE WHEN status = 'shortlisted' THEN 1 ELSE 0 END) as shortlisted_count
+                FROM job_applications
+                WHERE user_id = %s
+            """
+            cursor.execute(query, (user_id,))
+            stats = cursor.fetchone()
+
+            # Add job alerts count (you can modify this based on your alerts implementation)
+            # Add total jobs count
+            query = """
+                SELECT COUNT(*) as total_jobs
+                FROM jobs
+            """
+            cursor.execute(query)
+            total_jobs_count = cursor.fetchone()['total_jobs']
+            if stats:
+                stats['alerts_count'] = total_jobs_count
+
+            return stats
+        except Error as e:
+            print(f"Error getting candidate dashboard stats: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_employer_dashboard_stats(employer_id):
+        """Get statistics for employer dashboard."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            # Get count of jobs posted by the employer
+            query = """
+                SELECT COUNT(*) as posted_jobs
+                FROM jobs
+                WHERE employer_id = %s
+            """
+            cursor.execute(query, (employer_id,))
+            stats = cursor.fetchone()
+
+            # Get count of applications for the employer's jobs
+            query = """
+                SELECT 
+                    COUNT(*) as total_applications,
+                    SUM(CASE WHEN ja.status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+                    SUM(CASE WHEN ja.status = 'shortlisted' THEN 1 ELSE 0 END) as shortlisted_count
+                FROM job_applications ja
+                JOIN jobs j ON ja.job_id = j.id
+                WHERE j.employer_id = %s
+            """
+            cursor.execute(query, (employer_id,))
+            application_stats = cursor.fetchone()
+
+            if stats and application_stats:
+                stats.update(application_stats)
+
+            return stats
+        except Error as e:
+            print(f"Error getting employer dashboard stats: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_employer_recent_jobs(employer_id, limit=6):
+        """Get recent jobs posted by the employer."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT 
+                    j.id AS job_id,
+                    j.title,
+                    j.job_type,
+                    j.salary,
+                    j.created_at,
+                    j.deadline,
+                    j.status,
+                    c.company_name,
+                    c.company_logo,
+                    c.city,
+                    c.country,
+                    (SELECT COUNT(*) FROM job_applications WHERE job_id = j.id) AS application_count
+                FROM jobs j
+                JOIN companies c ON j.company_id = c.id
+                WHERE j.employer_id = %s
+                ORDER BY j.created_at DESC
+                LIMIT %s
+            """
+            cursor.execute(query, (employer_id, limit))
+            jobs = cursor.fetchall()
+
+            # Format timestamps and calculate time ago
+            for job in jobs:
+                if job['created_at']:
+                    import datetime
+                    now = datetime.datetime.now()
+                    diff = now - job['created_at']
+
+                    if diff.days > 0:
+                        job['time_ago'] = f"{diff.days} days ago"
+                    elif diff.seconds // 3600 > 0:
+                        job['time_ago'] = f"{diff.seconds // 3600} hours ago"
+                    elif diff.seconds // 60 > 0:
+                        job['time_ago'] = f"{diff.seconds // 60} minutes ago"
+                    else:
+                        job['time_ago'] = "Just now"
+                else:
+                    job['time_ago'] = "Unknown"
+
+                # Format salary
+                if job['salary']:
+                    job['formatted_salary'] = f"${job['salary']}"
+                else:
+                    job['formatted_salary'] = "Negotiable"
+
+                # Add days remaining until deadline
+                if job['deadline']:
+                    deadline = job['deadline']
+                    now = datetime.datetime.now().date()
+                    remaining = (deadline - now).days
+                    job['days_remaining'] = remaining if remaining > 0 else 0
+                else:
+                    job['days_remaining'] = 0
+
+            return jobs
+        except Error as e:
+            print(f"Error getting employer recent jobs: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)
+
+    @staticmethod
+    def get_count_applications_for_job(job_id):
+        """Get applications for a specific job."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+            query = """
+                SELECT
+                    COUNT(*) as total_applications FROM job_applications WHERE job_id = %s"""
+            cursor.execute(query, (job_id,))
+            applications = cursor.fetchone()
+            return applications
+        except Error as e:
+            print(f"Error getting applications for job: {e}")
+            return None
         finally:
             Database.close_connection(connection, cursor)
