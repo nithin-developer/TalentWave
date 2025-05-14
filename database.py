@@ -1053,3 +1053,64 @@ class Database:
             return None
         finally:
             Database.close_connection(connection, cursor)
+
+    
+    @staticmethod
+    def get_recent_job_applications(user_id, limit=5):
+        """Get recent job applications by the candidate."""
+        connection = None
+        cursor = None
+        try:
+            connection = Database.get_connection()
+            if not connection:
+                return None
+
+            cursor = connection.cursor(dictionary=True)
+
+            query = """
+                SELECT 
+                    ja.id AS application_id,
+                    ja.status,
+                    ja.applied_date,
+                    j.id AS job_id,
+                    j.title AS job_title,
+                    j.job_type,
+                    c.id AS company_id,
+                    c.company_name,
+                    c.company_logo,
+                    c.city,
+                    c.country
+                FROM job_applications ja
+                JOIN jobs j ON ja.job_id = j.id
+                JOIN companies c ON j.company_id = c.id
+                WHERE ja.user_id = %s
+                ORDER BY ja.applied_date DESC
+                LIMIT %s
+            """
+            cursor.execute(query, (user_id, limit))
+            applications = cursor.fetchall()
+            
+            # Format timestamps and calculate time ago
+            for app in applications:
+                if app['applied_date']:
+                    import datetime
+                    now = datetime.datetime.now()
+                    diff = now - app['applied_date']
+                    
+                    if diff.days > 0:
+                        app['time_ago'] = f"{diff.days} days ago"
+                    elif diff.seconds // 3600 > 0:
+                        app['time_ago'] = f"{diff.seconds // 3600} hours ago"
+                    elif diff.seconds // 60 > 0:
+                        app['time_ago'] = f"{diff.seconds // 60} minutes ago"
+                    else:
+                        app['time_ago'] = "Just now"
+                else:
+                    app['time_ago'] = "Unknown"
+            
+            return applications
+        except Error as e:
+            print(f"Error getting recent job applications: {e}")
+            return None
+        finally:
+            Database.close_connection(connection, cursor)

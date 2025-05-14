@@ -31,7 +31,7 @@ def login():
             session['last_name'] = user['last_name']
             session['role'] = user['role']
             
-            flash("Login successful! Redirecting...", "success")
+            flash("Login successful!, Welcome back...", "success")
             print(session.items())
             # Redirect based on role
             if role == 'candidate':

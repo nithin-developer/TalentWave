@@ -51,7 +51,7 @@
             <i class="icon la la-pencil-square-o"></i>
           </div>
           <div class="right">
-            <h4>{{ stats.pending_count }}</h4>
+            <h4>{{ stats.pending_count or 0 }}</h4>
             <p>Pending Status</p>
           </div>
         </div>
@@ -62,7 +62,7 @@
             <i class="icon la la-bookmark-o"></i>
           </div>
           <div class="right">
-            <h4>{{ stats.shortlisted_count }}</h4>
+            <h4>{{ stats.shortlisted_count or 0 }}</h4>
             <p>Shortlisted Status</p>
           </div>
         </div>
@@ -124,7 +124,7 @@
               {% else %}
                 <div class="col-lg-12">
                   <div class="alert alert-info">
-                    You haven't posted any jobs yet. <a href="{{ url_for('jobs.post_job') }}">Post a job</a> to get started.
+                    You haven't posted any jobs yet. <a href="{{ url_for('employer_jobs.post_new_job') }}">Post a job</a> to get started.
                   </div>
                 </div>
               {% endif %}
